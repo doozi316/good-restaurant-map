@@ -8,16 +8,5 @@ module.exports = {
         changeOrigin: true // cross origin 허용
       }
     }
-  },
-  css: {
-    loaderOptions: {
-      sass: {
-        data: `
-          @import "@/styles/_variables.scss";
-          @import "@/styles/_mixins.scss";
-          @import "@/styles/_functions.scss";
-        `
-      }
-    }
   }
 };
