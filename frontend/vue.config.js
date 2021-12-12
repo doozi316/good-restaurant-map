@@ -1,3 +1,4 @@
+const bootstrapSassAbstractsImports = require('vue-cli-plugin-bootstrap-vue/sassAbstractsImports.js')
 module.exports = {
   outputDir: "../src/main/resources/static",  // 빌드 타겟 디렉토리
   devServer: {
@@ -8,5 +9,15 @@ module.exports = {
         changeOrigin: true // cross origin 허용
       }
     }
-  }
+  },
+	css: {
+		loaderOptions: {
+			sass: {
+				additionalData: bootstrapSassAbstractsImports.join('\n')
+			},
+			scss: {
+				additionalData: [...bootstrapSassAbstractsImports, ''].join(';\n')
+			}
+		}
+	}
 };

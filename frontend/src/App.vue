@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <MainMap/>
-    <SideBar id="side-bar"/>
+    <SideBar class="side-bar"/>
   </div>
 </template>
 
@@ -19,6 +19,7 @@ export default {
 </script>
 
 <style lang="scss">
+@import "~@/assets/scss/vendors/bootstrap-vue/index";
 #app {
   position: absolute;
   top: 0;
@@ -26,7 +27,7 @@ export default {
   bottom: 0;
   left: 0;
 
-  > #side-bar {
+  > .side-bar {
     position: absolute;
     left: 0;
     top: 0;
