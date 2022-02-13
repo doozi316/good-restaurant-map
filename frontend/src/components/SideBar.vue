@@ -26,8 +26,6 @@
         <div class="review-area">
           <BFormTextarea
               ref="textarea"
-              :style="{ height: `${textAreaHeight}px`}"
-              @input="autoHeight"
               placeholder="후기를 입력해주세요."
           />
         </div>
@@ -53,16 +51,12 @@ export default {
   },
   data() {
     return {
-      isVisibleSideBar: true,
-      textAreaHeight: 300,
+      isVisibleSideBar: true
     }
   },
   methods: {
     showSideBar() {
       this.isVisibleSideBar = !this.isVisibleSideBar;
-    },
-    autoHeight() {
-      this.textAreaHeight = this.$refs.textarea.$el.scrollHeight;
     }
   }
 }
@@ -75,7 +69,6 @@ export default {
 
   > .resizable-side-bar {
     > .side-bar {
-      overflow-y: auto;
       background-color: rgba(0, 0, 0, 0.5);
       position: absolute;
       top: 0;
@@ -141,12 +134,32 @@ export default {
         padding: 20px 10px;
 
         textarea, textarea::placeholder {
+          min-height: 300px;
           resize: none;
-          overflow-y: hidden;
           color: #fff;
           background: none;
           border: none;
           box-shadow: none;
+        }
+
+        /* width */
+        ::-webkit-scrollbar {
+          width: 10px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+          background: #888;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+          background: #555;
         }
       }
     }
