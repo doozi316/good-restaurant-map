@@ -21,6 +21,7 @@ export default {
 <style lang="scss">
 @import "~@/assets/scss/vendors/bootstrap-vue/index";
 #app {
+  font-family: 'Nanum Barun Gothic', serif;
   position: absolute;
   top: 0;
   right: 0;
