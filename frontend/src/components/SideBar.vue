@@ -19,7 +19,10 @@
         </div>
         <div class="location-info-area">
           <FontAwesomeIcon icon="location-dot" />
-          <BInput placeholder="위치 정보 직접 입력하기"/>
+          <BInput
+              placeholder="위치 정보 직접 입력하기"
+              v-model="address"
+          />
         </div>
         <div class="rate-area">
           <BFormRating />
@@ -52,13 +55,17 @@ export default {
   },
   data() {
     return {
-      isVisibleSideBar: true
+      isVisibleSideBar: true,
+      address: undefined,
     }
+  },
+  created() {
+    this.$root.$refs.sideBar = this;
   },
   methods: {
     showSideBar() {
       this.isVisibleSideBar = !this.isVisibleSideBar;
-    }
+    },
   }
 }
 </script>
