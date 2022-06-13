@@ -33,6 +33,14 @@
               placeholder="후기를 입력해주세요."
           />
         </div>
+        <div class="bottom-btn-area">
+          <BButton
+            class="save-btn"
+            @click="save"
+          >
+            저장
+          </BButton>
+        </div>
       </div>
     </VueResizable>
     <BButton
@@ -66,6 +74,9 @@ export default {
     showSideBar() {
       this.isVisibleSideBar = !this.isVisibleSideBar;
     },
+    save() {
+
+    }
   }
 }
 </script>
@@ -172,6 +183,17 @@ export default {
         /* Handle on hover */
         ::-webkit-scrollbar-thumb:hover {
           background: #555;
+        }
+      }
+
+      > .bottom-btn-area {
+        text-align: right;
+        padding-right: 10px;
+
+        > .save-btn {
+          color: #fff;
+          font-weight: bold;
+          background-color: #ee9e06;
         }
       }
     }
