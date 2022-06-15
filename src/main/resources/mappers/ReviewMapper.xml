@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.map.restaurant.good.dao.ReviewDAO">
+    <select id="saveReview" resultType="com.map.restaurant.good.dto.ReviewDTO">
+        insert into
+            tbl_review (title, address, review, grade)
+        values
+               (#{title}, #{address}, #{review}, #{grade})
+    </select>
+</mapper>
