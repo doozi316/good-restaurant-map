@@ -1,10 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.map.restaurant.good.dao.ReviewDAO">
-    <select id="saveReview" resultType="com.map.restaurant.good.dto.ReviewDTO">
-        insert into
-            tbl_review (title, address, review, grade)
-        values
-               (#{title}, #{address}, #{review}, #{grade})
+    <insert id="saveReview">
+        insert into tbl_review (id, title, address, review, grade)
+        values (#{id}, #{title}, #{address}, #{review}, #{grade})
+        on duplicate key
+        update
+            title = #{title},
+            address = #{address},
+            review = #{review},
+            grade = #{grade}
+    </insert>
+
+    <select id="getReviews" resultType="hashMap">
+        select *
+        from tbl_review
     </select>
+
+    <delete id="deleteReview">
+        delete
+        from tbl_review
+        where id = #{id}
+    </delete>
 </mapper>
