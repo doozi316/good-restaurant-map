@@ -101,10 +101,8 @@ export default {
                     address: this.address,
                     grade: this.grade,
                     review: this.review
-                })
-            } finally {
+                });
                 await this.$bvModal.msgBoxOk('저장 완료되었습니다.', {
-                    dialogClass: '',
                     hideHeader: true,
                     okTitle: '확인',
                     noFade: false,
@@ -114,6 +112,20 @@ export default {
                     headerClass: 'p-2 border-bottom-0',
                     footerClass: 'p-2 border-top-0',
                 });
+            } catch (e) {
+                console.log(e.message);
+                await this.$bvModal.msgBoxOk(e.message, {
+                    hideHeader: true,
+                    okTitle: '확인',
+                    noFade: false,
+                    size: 'sm',
+                    buttonSize: 'sm',
+                    okVariant: 'danger',
+                    headerClass: 'p-2 border-bottom-0',
+                    footerClass: 'p-2 border-top-0',
+                });
+                return await Promise.reject(e);
+            } finally {
                 this.processingCount--;
             }
         }
