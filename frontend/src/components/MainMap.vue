@@ -18,6 +18,7 @@ import {toLonLat, transform} from 'ol/proj.js'
 import {defaults} from 'ol/control.js'
 import OlStyle from 'ol/style/Style.js'
 import OlIcon from 'ol/style/Icon.js'
+import { process } from '@/common/Api'
 
 const EPSG_3857 = 'EPSG:3857';
 const EPSG_4326 = 'EPSG:4326';
@@ -30,11 +31,21 @@ export default {
             address: undefined
         }
     },
-    mounted() {
+    async created () {
+
+    },
+    async mounted() {
+        const that = this;
         const vectorSource = new OlVectorSource(EPSG_3857);
         const vectorLayer = new OlVectorLayer({
             source: vectorSource
-        })
+        });
+
+        const iconsSource = new OlVectorSource(EPSG_3857);
+        const iconsLayer = new OlVectorLayer({
+            source: iconsSource
+        });
+
         this.olMap = new OlMap({
             target: this.$refs.map,
             controls: defaults({
@@ -46,7 +57,8 @@ export default {
                 new OlLayerTile({
                     source: new OSM()
                 }),
-                vectorLayer
+                vectorLayer,
+                iconsLayer
             ],
             view: new OlView({
                 center: this.coordi4326To3857([127.1388684, 37.4449168]), // 경기도 성남
@@ -55,13 +67,30 @@ export default {
             })
         })
 
-        const that = this
+        const reviews = await this.getReviews();
+        this.$store.commit('setReviews', reviews);
+
+        const style = new OlStyle({
+            image: new OlIcon({
+                scale: 0.08,
+                src: require('../assets/images/pin.png')
+            })
+        });
+        const features = this.$store.state.reviews.map(review => {
+            const point = that.coordi4326To3857([review.lon, review.lat]);
+            const feature = new OlFeature({
+                geometry: new OlPoint(point)
+            });
+            feature.setStyle(style);
+            return feature;
+        })
+        iconsSource.addFeatures(features);
+
+
         this.olMap.on('click', async (e) => {
             vectorSource.clear();
             geocoder.getSource().clear();
-            const lonLatArr = toLonLat(e.coordinate)
-            const lon = lonLatArr[0]
-            const lat = lonLatArr[1]
+            const [lon, lat] = toLonLat(e.coordinate)
             const addressInfo = await that.getAddress(lon, lat)
             that.setUiAddress(addressInfo.data.display_name);
 
@@ -95,6 +124,12 @@ export default {
 
     },
     methods: {
+        async getReviews() {
+            return await process(this, async () => {
+                const result = await axios.get('/api/review/getReviews');
+                return result.data;
+            })
+        },
         coordi4326To3857(coord) {
             return transform(coord, EPSG_4326, EPSG_3857);
         },

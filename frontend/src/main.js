@@ -4,9 +4,11 @@ import Vue from 'vue'
 import './plugins/bootstrap-vue'
 import App from './App.vue'
 import '@/common/Icons.js';
+import store from './store'
 
 Vue.config.productionTip = false
 
 new Vue({
-  render: h => h(App),
+  store,
+  render: h => h(App)
 }).$mount('#app')

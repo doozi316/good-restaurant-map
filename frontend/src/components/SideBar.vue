@@ -59,6 +59,7 @@
 import VueResizable from 'vue-resizable'
 import axios from 'axios'
 import ProgressSpinner from '@/components/ProgressSpinner.vue'
+import { process } from '@/common/Api.js';
 
 export default {
     name: 'SideBar',
@@ -83,19 +84,15 @@ export default {
     },
     methods: {
         async getReviews() {
-            this.processingCount++;
-            try {
+            return await process(this, async () => {
                 return await axios.get('/api/review/getReviews');
-            } finally {
-                this.processingCount--;
-            }
+            })
         },
         showSideBar () {
             this.isVisibleSideBar = !this.isVisibleSideBar
         },
-        async saveReview () {
-            this.processingCount++;
-            try {
+        saveReview () {
+            process(this, async () => {
                 await axios.post('/api/review/saveReview', {
                     title: this.title,
                     address: this.address,
@@ -112,22 +109,7 @@ export default {
                     headerClass: 'p-2 border-bottom-0',
                     footerClass: 'p-2 border-top-0',
                 });
-            } catch (e) {
-                console.log(e.message);
-                await this.$bvModal.msgBoxOk(e.message, {
-                    hideHeader: true,
-                    okTitle: '확인',
-                    noFade: false,
-                    size: 'sm',
-                    buttonSize: 'sm',
-                    okVariant: 'danger',
-                    headerClass: 'p-2 border-bottom-0',
-                    footerClass: 'p-2 border-top-0',
-                });
-                return await Promise.reject(e);
-            } finally {
-                this.processingCount--;
-            }
+            })
         }
     }
 }

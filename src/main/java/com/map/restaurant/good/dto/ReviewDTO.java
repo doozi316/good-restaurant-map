@@ -8,6 +8,8 @@ public class ReviewDTO {
     String address;
     Integer grade;
     String review;
+    Double lon;
+    Double lat;
 
     public String getId() {
         return id;
@@ -47,5 +49,21 @@ public class ReviewDTO {
 
     public void setReview(String review) {
         this.review = review;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
+    }
+
+    public Double getLat() {
+        return lat;
+    }
+
+    public void setLat(Double lat) {
+        this.lat = lat;
     }
 }
