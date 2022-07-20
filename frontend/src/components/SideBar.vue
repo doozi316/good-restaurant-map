@@ -10,7 +10,11 @@
         >
             <div class="side-bar">
                 <div class="title-area">
-                    <BInput v-model="title" placeholder="맛집 이름을 입력해주세요."/>
+                    <BInput
+                        v-model="title"
+                        :disabled="isDisabledInput"
+                        placeholder="맛집 이름을 입력해주세요."
+                    />
                 </div>
                 <div class="image-area">
                     <div class="iw-file-input">
@@ -21,25 +25,46 @@
                     <FontAwesomeIcon icon="location-dot"/>
                     <BInput
                         placeholder="위치 정보 직접 입력하기"
+                        :disabled="isDisabledInput"
                         v-model="address"
                     />
                 </div>
                 <div class="rate-area">
-                    <BFormRating v-model="grade"/>
+                    <BFormRating
+                        v-model="grade"
+                        :readonly="isDisabledInput"
+                    />
                 </div>
                 <div class="review-area">
                     <BFormTextarea
                         ref="textarea"
                         placeholder="후기를 입력해주세요."
                         v-model="review"
+                        :disabled="isDisabledInput"
                     />
                 </div>
                 <div class="bottom-btn-area">
                     <BButton
                         class="save-btn"
                         @click="saveReview"
+                        v-if="!isDisabledInput"
                     >
                         저장
+                    </BButton>
+                    <BButton
+                        class="mr-2"
+                        variant="success"
+                        @click="$store.commit('setInputState', false)"
+                        v-if="isDisabledInput"
+                    >
+                        수정하기
+                    </BButton>
+                    <BButton
+                        variant="danger"
+                        @click="removeReview"
+                        v-if="isDisabledInput"
+                    >
+                        삭제하기
                     </BButton>
                 </div>
             </div>
@@ -59,6 +84,8 @@
 import VueResizable from 'vue-resizable'
 import axios from 'axios'
 import ProgressSpinner from '@/components/ProgressSpinner.vue'
+import { confirm, ok } from '@/common/Dialog.js';
+import { mapState } from 'vuex'
 import { process } from '@/common/Api.js';
 
 export default {
@@ -70,45 +97,92 @@ export default {
     data () {
         return {
             isVisibleSideBar: true,
-            title: undefined,
-            address: undefined,
-            grade: undefined,
-            review: undefined,
             processingCount: 0,
         }
     },
-    async created () {
-        this.$root.$refs.sideBar = this;
-        const reviews = await this.getReviews();
-        console.log(reviews);
+    computed: {
+        ...mapState({
+            reviewId: state => state.curReviewId,
+            curAddress: state => state.curAddress,
+            curGrade: state => state.curGrade,
+            curReview: state => state.curReview,
+            curTitle: state => state.curTitle,
+            isDisabledInput: state => state.isDisabledInput
+        }),
+        address: {
+            get() {
+                return this.curAddress;
+            },
+            set(newVal) {
+                this.$store.commit('setCurAddress', newVal);
+            }
+        },
+        grade: {
+            get() {
+                return this.curGrade
+            },
+            set(newVal) {
+                this.$store.commit('setCurGrade', newVal);
+            }
+        },
+        review: {
+            get() {
+                return this.curReview
+            },
+            set(newVal) {
+                this.$store.commit('setCurReview', newVal);
+            }
+        },
+        title: {
+            get() {
+                return this.curTitle
+            },
+            set(newVal) {
+                this.$store.commit('setCurTitle', newVal);
+            }
+        }
     },
     methods: {
         async getReviews() {
             return await process(this, async () => {
-                return await axios.get('/api/review/getReviews');
+                const result = await axios.get('/api/review/getReviews');
+                return result.data;
             })
         },
         showSideBar () {
             this.isVisibleSideBar = !this.isVisibleSideBar
         },
+        removeReview() {
+            process(this, async () => {
+                const isConfirmed = await confirm(this, `'${this.title}' 리뷰를 삭제하시겠습니까?`);
+                if (! isConfirmed) return;
+
+                await axios.delete('/api/review/deleteReview', {
+                    data: {
+                        id: this.reviewId
+                    }
+                });
+
+                await ok(this, '삭제되었습니다.');
+
+                await this.$store.dispatch('setReviews');
+            })
+        },
         saveReview () {
             process(this, async () => {
                 await axios.post('/api/review/saveReview', {
+                    id: this.reviewId,
                     title: this.title,
                     address: this.address,
                     grade: this.grade,
-                    review: this.review
+                    review: this.review,
+                    lon: this.$store.state.curLon,
+                    lat: this.$store.state.curLat
                 });
-                await this.$bvModal.msgBoxOk('저장 완료되었습니다.', {
-                    hideHeader: true,
-                    okTitle: '확인',
-                    noFade: false,
-                    size: 'sm',
-                    buttonSize: 'sm',
-                    okVariant: 'success',
-                    headerClass: 'p-2 border-bottom-0',
-                    footerClass: 'p-2 border-top-0',
-                });
+                await ok(this, '저장 완료되었습니다.');
+
+                await this.$store.dispatch('setReviews');
+                this.$store.commit('setInputState', true);
             })
         }
     }

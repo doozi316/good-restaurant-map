@@ -28,7 +28,8 @@ public class ReviewCtrl {
     public List<ReviewDTO> getReviews() { return reviewDAO.getReviews(); }
 
     @DeleteMapping("/deleteReview")
-    public void deleteReview(@RequestParam(value = "id", required = true) String id) {
+    public void deleteReview(@RequestBody ReviewDTO reviewDTO) {
+        String id = reviewDTO.getId();
         reviewDAO.deleteReview(id);
     }
 }
