@@ -1,14 +1,15 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios';
+import { process } from '@/common/Api.js';
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
+        reviews: undefined,
         curLon: undefined,
         curLat: undefined,
-        reviews: undefined,
         curReviewId: undefined,
         curAddress: undefined,
         curTitle: undefined,
@@ -62,9 +63,11 @@ export default new Vuex.Store({
         }
     },
     actions: {
-        async setReviews({commit}) {
-            const result = await axios.get('/api/review/getReviews');
-            await commit('setReviews', result.data);
+        async setReviews({commit}, that) {
+            await process(that, async () => {
+                const result = await axios.get('/api/review/getReviews');
+                await commit('setReviews', result.data);
+            })
         }
     },
     modules: {}

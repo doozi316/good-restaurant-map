@@ -165,7 +165,7 @@ export default {
 
                 await ok(this, '삭제되었습니다.');
 
-                await this.$store.dispatch('setReviews');
+                await this.$store.dispatch('setReviews', this);
             })
         },
         saveReview () {
@@ -181,7 +181,7 @@ export default {
                 });
                 await ok(this, '저장 완료되었습니다.');
 
-                await this.$store.dispatch('setReviews');
+                await this.$store.dispatch('setReviews', this);
                 this.$store.commit('setInputState', true);
             })
         }

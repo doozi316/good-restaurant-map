@@ -26,10 +26,9 @@ import OlPoint from 'ol/geom/Point.js';
 import OSM from 'ol/source/OSM.js'
 import OlStyle from 'ol/style/Style.js'
 import OlIcon from 'ol/style/Icon.js'
-import Overlay from 'ol/Overlay';
+import Overlay from 'ol/Overlay.js';
 import {toLonLat, transform} from 'ol/proj.js'
 import {defaults} from 'ol/control.js'
-import { process } from '@/common/Api.js'
 
 const EPSG_3857 = 'EPSG:3857';
 const EPSG_4326 = 'EPSG:4326';
@@ -38,12 +37,12 @@ export default {
     name: 'MainMap',
     data() {
         return {
-            isShowOverlay: false,
             olMap: undefined,
-            address: undefined,
+            overlay: undefined,
+            isShowOverlay: false,
             selectedOverlayText: undefined,
             selectedOverlayRating: undefined,
-            overlay: undefined,
+            address: undefined,
             vectorSource: undefined,
             iconsSource: undefined
         }
@@ -51,9 +50,6 @@ export default {
     computed: {
         reviews() {
             return this.$store.state.reviews;
-        },
-        isDisabledInput() {
-            return this.$store.state.isDisabledInput;
         }
     },
     watch: {
@@ -90,7 +86,7 @@ export default {
             })
         })
 
-        await this.$store.dispatch('setReviews');
+        await this.$store.dispatch('setReviews', this);
 
         this.drawFeatures();
 
@@ -100,8 +96,7 @@ export default {
             that.olMap.removeOverlay(that.overlay);
 
             that.olMap.forEachFeatureAtPixel(e.pixel, feature => {
-                if (feature.getGeometry().getType() === 'Point' &&
-                    feature.get('title') !== undefined) {
+                if (feature.get('title') !== undefined) {
                     that.isShowOverlay = true;
                     that.selectedOverlayText = feature.get('title');
                     that.selectedOverlayRating = feature.get('grade');
@@ -112,7 +107,6 @@ export default {
                         element: overlay,
                         position: feature.getGeometry().getCoordinates(),
                         positioning: 'bottom-center',
-                        stopEvent: false,
                         offset: [0, -10]
                     })
                     that.olMap.addOverlay(that.overlay);
@@ -143,7 +137,7 @@ export default {
                 })
             }))
 
-            const hit = that.olMap.forEachFeatureAtPixel(e.pixel, feature => {
+            const existFeature = that.olMap.forEachFeatureAtPixel(e.pixel, feature => {
                 this.$store.commit('setCurTitle', feature.get('title'));
                 this.$store.commit('setCurAddress', feature.get('address'));
                 this.$store.commit('setCurGrade', feature.get('grade'));
@@ -153,7 +147,7 @@ export default {
                 return true;
             })
 
-            if (!hit)
+            if (!existFeature)
                 this.vectorSource.addFeature(feature);
         })
 
@@ -205,11 +199,6 @@ export default {
             this.iconsSource.addFeatures(features);
 
             this.olMap.addLayer(iconsLayer);
-        },
-        async getReviews() {
-            return await process(this, async () => {
-
-            })
         },
         coordi4326To3857(coord) {
             return transform(coord, EPSG_4326, EPSG_3857);
