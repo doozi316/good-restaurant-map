@@ -7,7 +7,7 @@ Vue.use(Vuex)
 
 export default new Vuex.Store({
     state: {
-        reviews: undefined,
+        reviews: [],
         curLon: undefined,
         curLat: undefined,
         curReviewId: undefined,
@@ -15,7 +15,8 @@ export default new Vuex.Store({
         curTitle: undefined,
         curGrade: undefined,
         curReview: undefined,
-        isDisabledInput: undefined
+        isDisabledInput: undefined,
+        curFileList: [],
     },
     mutations: {
         setInputState: (state, bool) => {
@@ -57,6 +58,9 @@ export default new Vuex.Store({
         setReview: (state, review) => {
             setReview(state, review);
         },
+        setCurFileList: (state, images) => {
+            state.curFileList = images;
+        },
         setLonLat: (state, { lon, lat }) => {
             state.curLon = lon;
             state.curLat = lat;
@@ -67,6 +71,14 @@ export default new Vuex.Store({
             await process(that, async () => {
                 const result = await axios.get('/api/review/getReviews');
                 await commit('setReviews', result.data);
+            })
+        },
+        async setFileList({commit, state}, that) {
+            await process(that, async () => {
+                const result = await axios.get('/api/file/getImages', {
+                    params: { reviewId: state.curReviewId }
+                });
+                await commit('setCurFileList', result.data);
             })
         }
     },

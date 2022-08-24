@@ -3,8 +3,7 @@
 <mapper namespace="com.map.restaurant.good.dao.ReviewDAO">
     <insert id="saveReview">
         insert into tbl_review (id, title, address, review, grade, lon, lat)
-        values (#{id}, #{title}, #{address}, #{review}, #{grade}, #{lon}, #{lat})
-        on duplicate key
+        values (#{id}, #{title}, #{address}, #{review}, #{grade}, #{lon}, #{lat}) on duplicate key
         update
             title = #{title},
             address = #{address},

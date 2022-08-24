@@ -1,5 +1,8 @@
 package com.map.restaurant.good.dto;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 import java.util.UUID;
 
 public class ReviewDTO {
@@ -10,6 +13,8 @@ public class ReviewDTO {
     String review;
     Double lon;
     Double lat;
+    List<MultipartFile> files;
+    List<String> fileIds;
 
     public String getId() {
         return id;
@@ -65,5 +70,21 @@ public class ReviewDTO {
 
     public void setLat(Double lat) {
         this.lat = lat;
+    }
+
+    public List<MultipartFile> getFiles() {
+        return files;
+    }
+
+    public void setFiles(List<MultipartFile> files) {
+        this.files = files;
+    }
+
+    public List<String> getFileIds() {
+        return fileIds;
+    }
+
+    public void setFileIds(List<String> fileIds) {
+        this.fileIds = fileIds;
     }
 }

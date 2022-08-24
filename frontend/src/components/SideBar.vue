@@ -13,12 +13,94 @@
                     <BInput
                         v-model="title"
                         :disabled="isDisabledInput"
-                        placeholder="맛집 이름을 입력해주세요."
+                        placeholder="이름을 입력해주세요."
                     />
                 </div>
-                <div class="image-area">
-                    <div class="iw-file-input">
+                <div class="image-area" v-if="!isDisabledInput">
+                    <div class="file-input-wrapper"
+                         @dragover="onDragOver"
+                         @drop="onDrop"
+                         v-if="!fileList.length && !curFileList.length"
+                    >
+                        <input
+                            class="file-input"
+                            type="file"
+                            accept="image/*"
+                            @change="onChangeFiles"
+                            multiple
+                        />
                         사진을 업로드 해주세요
+                    </div>
+                    <div class="file-list" v-else>
+                        <ul v-if="fileList.length > 0">
+                            <li
+                                v-for="(file, idx) in fileList"
+                                :key="idx"
+                            >
+                                {{file.name}}
+                                <FontAwesomeIcon
+                                    class="delete-file-icon"
+                                    icon="times"
+                                    @click="deleteFile(idx)"
+                                />
+                            </li>
+                        </ul>
+                        <ul v-if="curFileList.length > 0">
+                            <li
+                                v-for="(file, idx) in curFileList"
+                                :key="idx"
+                            >
+                                {{file.file_name}}
+                                <FontAwesomeIcon
+                                    class="delete-file-icon"
+                                    icon="times"
+                                    @click="addDeletedFileId(idx)"
+                                />
+                            </li>
+                        </ul>
+                        <ul>
+                            <li class="file-btn-area">
+                                <BButton
+                                    size="sm"
+                                    @click="deleteAllFile"
+                                    class="file-delete-btn"
+                                >
+                                    전체 삭제
+                                    <FontAwesomeIcon icon="times" />
+                                </BButton>
+                                <BButton
+                                    size="sm"
+                                    class="file-add-btn"
+                                >
+                                    추가
+                                    <FontAwesomeIcon icon="plus" />
+                                    <input
+                                        class="file-input"
+                                        type="file"
+                                        accept="image/*"
+                                        @change="onChangeFiles"
+                                        multiple
+                                    />
+                                </BButton>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="slide-image-area" v-else>
+                    <BCarousel
+                        controls
+                        indicators
+                        v-if="curFileList.length > 0"
+                    >
+                        <BCarouselSlide
+                            v-for="(fileInfo, idx) in curFileList"
+                            :key="idx"
+                            :img-src="`${imgDirPath}/${fileInfo.review_id}/${fileInfo.file_name}`"
+                            reloadable
+                        />
+                    </BCarousel>
+                    <div class="no-image-text" v-else>
+                        <span>등록된 사진이 없습니다.</span>
                     </div>
                 </div>
                 <div class="location-info-area">
@@ -54,7 +136,7 @@
                     <BButton
                         class="mr-2"
                         variant="success"
-                        @click="$store.commit('setInputState', false)"
+                        @click="modifyReview"
                         v-if="isDisabledInput"
                     >
                         수정하기
@@ -81,9 +163,11 @@
 </template>
 
 <script>
+
 import VueResizable from 'vue-resizable'
 import axios from 'axios'
 import ProgressSpinner from '@/components/ProgressSpinner.vue'
+import { IMG_DIR_PATH } from '@/common/Config.js'
 import { confirm, ok } from '@/common/Dialog.js';
 import { mapState } from 'vuex'
 import { process } from '@/common/Api.js';
@@ -96,6 +180,9 @@ export default {
     },
     data () {
         return {
+            imgDirPath: IMG_DIR_PATH,
+            fileList: [],
+            deletedFileIds: [],
             isVisibleSideBar: true,
             processingCount: 0,
         }
@@ -107,7 +194,8 @@ export default {
             curGrade: state => state.curGrade,
             curReview: state => state.curReview,
             curTitle: state => state.curTitle,
-            isDisabledInput: state => state.isDisabledInput
+            isDisabledInput: state => state.isDisabledInput,
+            curFileList: state => state.curFileList,
         }),
         address: {
             get() {
@@ -143,14 +231,39 @@ export default {
         }
     },
     methods: {
-        async getReviews() {
-            return await process(this, async () => {
-                const result = await axios.get('/api/review/getReviews');
-                return result.data;
+        addDeletedFileId(idx) {
+            this.deletedFileIds.push(this.curFileList[idx].file_id);
+            const newCurFileList = this.curFileList.reduce((arr, item, i) => {
+                if (i !== idx)
+                    arr.push(item);
+                return arr;
+            }, [])
+            this.$store.commit('setCurFileList', newCurFileList);
+        },
+        deleteAllFile() {
+            this.curFileList.forEach((file, idx) => {
+                this.addDeletedFileId(idx);
             })
+            this.$store.commit('setCurFileList', []);
+            this.fileList = [];
+        },
+        deleteFile(idx) {
+            this.fileList.splice(idx, 1);
+        },
+        onChangeFiles(e) {
+            this.fileList.push(...e.target.files);
+        },
+        onDrop(e) {
+            this.fileList.push(...e.dataTransfer.files);
+        },
+        onDragOver(e) {
+            e.preventDefault();
         },
         showSideBar () {
             this.isVisibleSideBar = !this.isVisibleSideBar
+        },
+        modifyReview() {
+            this.$store.commit('setInputState', false);
         },
         removeReview() {
             process(this, async () => {
@@ -171,17 +284,39 @@ export default {
         saveReview () {
             process(this, async () => {
                 await axios.post('/api/review/saveReview', {
-                    id: this.reviewId,
-                    title: this.title,
-                    address: this.address,
-                    grade: this.grade,
-                    review: this.review,
-                    lon: this.$store.state.curLon,
-                    lat: this.$store.state.curLat
-                });
-                await ok(this, '저장 완료되었습니다.');
+                        id: this.reviewId,
+                        title: this.title,
+                        address: this.address,
+                        grade: this.grade,
+                        review: this.review,
+                        lon: this.$store.state.curLon,
+                        lat: this.$store.state.curLat,
+                        files: this.fileList,
+                        fileIds: this.deletedFileIds
+                    },
+                    {
+                        transformRequest: function (data) {
+                            const formData = new FormData();
+                            for (let key in data) {
+                                const value = data[key];
 
+                                if (! value)
+                                    continue;
+
+                                if (key === 'files')
+                                    value.forEach(file => {
+                                        formData.append(key, file);
+                                    })
+                                else
+                                    formData.append(key, value)
+                            }
+                            return formData
+                        }
+                    })
+                await ok(this, '저장 완료되었습니다.');
+                this.fileList = [];
                 await this.$store.dispatch('setReviews', this);
+                await this.$store.dispatch('setFileList', this);
                 this.$store.commit('setInputState', true);
             })
         }
@@ -222,7 +357,84 @@ export default {
             > .image-area {
                 padding: 0 10px;
 
-                > .iw-file-input {
+                > .file-input-wrapper, .file-list {
+                    position: relative;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    font-size: 1.3rem;
+                    border: 5px dashed rgb(255, 255, 255, 0.5);
+                    border-radius: 10px;
+                    height: 250px;
+                    background-color: rgb(255, 255, 255, 0.5);
+                    overflow-y: auto;
+                    flex-direction: column;
+
+                    > ul {
+                        padding: 0 10px;
+
+                        > li {
+                            list-style: none;
+                            font-size: 1rem;
+                            word-break: break-all;
+
+                            > .delete-file-icon {
+                                cursor: pointer;
+                                padding: 10px 0 0 5px;
+                            }
+                        }
+
+                        > .file-btn-area {
+                            display: flex;
+                            padding-top: 10px;
+
+                            > .file-delete-btn {
+                                display: flex;
+                                align-items: center;
+                                font-size: 0.7rem;
+                                margin-right: 5px;
+                            }
+
+                            > .file-add-btn {
+                                display: flex;
+                                align-items: center;
+                                font-size: 0.7rem;
+                                position: relative;
+
+                                > .file-input {
+                                    cursor: pointer;
+                                    position: absolute;
+                                    right: 0;
+                                    top: 0;
+                                    bottom: 0;
+                                    left: 0;
+                                    opacity: 0;
+                                }
+                            }
+                        }
+                    }
+
+                    > .file-input {
+                        cursor: pointer;
+                        position: absolute;
+                        right: 0;
+                        top: 0;
+                        bottom: 0;
+                        left: 0;
+                        opacity: 0;
+                    }
+                }
+            }
+
+            > .slide-image-area {
+                padding: 0 10px;
+
+                ::v-deep .img-fluid {
+                    height: 250px !important;
+                    object-fit: cover;
+                }
+
+                > .no-image-text {
                     display: flex;
                     justify-content: center;
                     align-items: center;
@@ -271,26 +483,6 @@ export default {
                     background: none;
                     border: none;
                     box-shadow: none;
-                }
-
-                /* width */
-                ::-webkit-scrollbar {
-                    width: 10px;
-                }
-
-                /* Track */
-                ::-webkit-scrollbar-track {
-                    background: #f1f1f1;
-                }
-
-                /* Handle */
-                ::-webkit-scrollbar-thumb {
-                    background: #888;
-                }
-
-                /* Handle on hover */
-                ::-webkit-scrollbar-thumb:hover {
-                    background: #555;
                 }
             }
 

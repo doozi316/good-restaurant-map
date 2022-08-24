@@ -10,6 +10,7 @@
                 <BFormRating class="rating" v-model="selectedOverlayRating" readonly />
             </div>
         </div>
+        <ProgressSpinner v-if="processingCount > 0" />
     </div>
 </template>
 
@@ -27,6 +28,7 @@ import OSM from 'ol/source/OSM.js'
 import OlStyle from 'ol/style/Style.js'
 import OlIcon from 'ol/style/Icon.js'
 import Overlay from 'ol/Overlay.js';
+import ProgressSpinner from '@/components/ProgressSpinner.vue'
 import {toLonLat, transform} from 'ol/proj.js'
 import {defaults} from 'ol/control.js'
 
@@ -35,6 +37,9 @@ const EPSG_4326 = 'EPSG:4326';
 
 export default {
     name: 'MainMap',
+    components: {
+        ProgressSpinner
+    },
     data() {
         return {
             olMap: undefined,
@@ -44,7 +49,8 @@ export default {
             selectedOverlayRating: undefined,
             address: undefined,
             vectorSource: undefined,
-            iconsSource: undefined
+            iconsSource: undefined,
+            processingCount: 0,
         }
     },
     computed: {
@@ -144,6 +150,7 @@ export default {
                 this.$store.commit('setCurReview', feature.get('review'));
                 this.$store.commit('setCurReviewId', feature.get('reviewId'));
                 this.$store.commit('setInputState', true);
+                this.$store.dispatch('setFileList', this);
                 return true;
             })
 
@@ -164,6 +171,7 @@ export default {
         geocoder.on('addresschosen', (evt) => {
             this.vectorSource.clear();
             that.$store.commit('setCurAddress', that.getUiAddress(evt.address.details.name));
+            that.$store.commit('setLonLat', { lon: evt.place.lon, lat: evt.place.lat });
         });
 
     },

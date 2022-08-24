@@ -1,34 +1,35 @@
-package com.map.restaurant.good;
+package com.map.restaurant.good.service;
 
 import com.map.restaurant.good.dao.ReviewDAO;
 import com.map.restaurant.good.dto.ReviewDTO;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
-@RestController
-@RequestMapping("/api/review")
-public class ReviewCtrl {
+@Service
+public class ReviewService {
     @Autowired
     private ReviewDAO reviewDAO;
 
-    @PostMapping("/saveReview")
-    public void saveReview(@RequestBody ReviewDTO reviewDTO) {
+    @Transactional
+    public void saveReview(ReviewDTO reviewDTO) {
         String id = reviewDTO.getId();
-        if (id == null) {
+        if (id == null || id.isEmpty()) {
             String uuidStr = UUID.randomUUID().toString();
             reviewDTO.setId(uuidStr);
         }
         reviewDAO.saveReview(reviewDTO);
     }
 
-    @GetMapping("/getReviews")
-    public List<ReviewDTO> getReviews() { return reviewDAO.getReviews(); }
+    public List<ReviewDTO> getReviews() {
+        return reviewDAO.getReviews();
+    }
 
-    @DeleteMapping("/deleteReview")
-    public void deleteReview(@RequestBody ReviewDTO reviewDTO) {
+    @Transactional
+    public void deleteReview(ReviewDTO reviewDTO) {
         String id = reviewDTO.getId();
         reviewDAO.deleteReview(id);
     }

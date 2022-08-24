@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.map.restaurant.good.dao.FileDAO">
+    <select id="getImages" resultType="hashMap">
+        select *
+        from tbl_file_info
+        where review_id = #{reviewId}
+    </select>
+
+    <insert id="saveFile">
+        insert into tbl_file_info (file_id, review_id, file_name, file_size, content_type)
+        values (#{fileId}, #{reviewId}, #{fileName}, #{fileSize}, #{contentType})
+    </insert>
+
+    <delete id="deleteFiles">
+        delete
+        from tbl_file_info
+        <where>
+            <foreach collection="fileIds" item="fileId" separator="or">
+                file_id = #{fileId}
+            </foreach>
+        </where>
+    </delete>
+</mapper>
