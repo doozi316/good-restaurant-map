@@ -3,10 +3,10 @@ package com.map.restaurant.good.dto;
 public class FileDTO {
     String fileId;
     String reviewId;
-
     Long fileSize;
     String fileName;
     String ContentType;
+    String fileUpDateStr;
 
     public String getFileId() {
         return fileId;
@@ -47,4 +47,13 @@ public class FileDTO {
     public void setContentType(String contentType) {
         ContentType = contentType;
     }
+
+    public String getFileUpDateStr() {
+        return fileUpDateStr;
+    }
+
+    public void setFileUpDateStr(String fileUpDateStr) {
+        this.fileUpDateStr = fileUpDateStr;
+    }
+
 }

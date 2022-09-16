@@ -2,15 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.map.restaurant.good.dao.FileDAO">
-    <select id="getImages" resultType="hashMap">
-        select *
+    <select id="getImages" resultType="com.map.restaurant.good.dto.FileDTO">
+        select
+            review_id,
+            file_id,
+            file_name,
+            file_size,
+            content_type,
+            DATE_FORMAT(update_date, '%Y%m%d%H%i%s') as file_up_date_str
         from tbl_file_info
         where review_id = #{reviewId}
     </select>
 
     <insert id="saveFile">
-        insert into tbl_file_info (file_id, review_id, file_name, file_size, content_type)
-        values (#{fileId}, #{reviewId}, #{fileName}, #{fileSize}, #{contentType})
+        insert into tbl_file_info (file_id, review_id, file_name, file_size, content_type, update_date)
+        values (#{fileId}, #{reviewId}, #{fileName}, #{fileSize}, #{contentType}, UTC_TIMESTAMP())
     </insert>
 
     <delete id="deleteFiles">

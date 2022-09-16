@@ -128,9 +128,11 @@ export default {
             const addressInfo = await that.getAddress(lon, lat)
 
             this.$store.commit('setReview', undefined);
-            this.$store.commit('setInputState', false);
+            this.$store.commit('setIsDisabledInput', false);
             this.$store.commit('setCurAddress', that.getUiAddress(addressInfo.data.display_name));
             that.$store.commit('setLonLat', {lon, lat});
+            this.$store.commit('setIsVisibleReviewList', false);
+            await this.$store.commit('setCurFileList', []);
 
             const point = that.coordi4326To3857([lon, lat]);
             const feature = new OlFeature({
@@ -149,7 +151,7 @@ export default {
                 this.$store.commit('setCurGrade', feature.get('grade'));
                 this.$store.commit('setCurReview', feature.get('review'));
                 this.$store.commit('setCurReviewId', feature.get('reviewId'));
-                this.$store.commit('setInputState', true);
+                this.$store.commit('setIsDisabledInput', true);
                 this.$store.dispatch('setFileList', this);
                 return true;
             })

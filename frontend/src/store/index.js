@@ -15,15 +15,17 @@ export default new Vuex.Store({
         curTitle: undefined,
         curGrade: undefined,
         curReview: undefined,
-        isDisabledInput: undefined,
+        isDisabledInput: true,
         curFileList: [],
+        isVisibleReviewList: true
     },
     mutations: {
-        setInputState: (state, bool) => {
-            state.isDisabledInput = bool;
+        setIsDisabledInput: (state, bool) => {
+            setIsDisabledInput(state, bool);
         },
         setCurReviewId: (state, id) => {
             state.curReviewId = id;
+            setIsVisibleReviewList(state, false);
         },
         setCurTitle: (state, title) => {
             state.curTitle = title;
@@ -47,7 +49,6 @@ export default new Vuex.Store({
                     state.curReviewId = curReview.id;
             }
             state.reviews = reviews;
-            state.isDisabledInput = false;
 
             const review = reviews.find(review =>
                 review.id === state.curReviewId
@@ -64,6 +65,14 @@ export default new Vuex.Store({
         setLonLat: (state, { lon, lat }) => {
             state.curLon = lon;
             state.curLat = lat;
+        },
+        setIsVisibleReviewList: (state, bool) => {
+            setIsVisibleReviewList(state, bool);
+        },
+        registerReview(state) {
+            setIsVisibleReviewList(state, false);
+            setIsDisabledInput(state, false);
+            setReview(state);
         }
     },
     actions: {
@@ -93,4 +102,12 @@ function setReview(state, review) {
     state.curGrade = review ? review.grade : review;
     state.curAddress = review ? review.address : review;
     state.curReview = review ? review.review : review;
+}
+
+function setIsVisibleReviewList(state, bool) {
+    state.isVisibleReviewList = bool;
+}
+
+function setIsDisabledInput(state, bool) {
+    state.isDisabledInput = bool;
 }

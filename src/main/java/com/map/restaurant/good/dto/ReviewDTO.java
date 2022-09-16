@@ -15,6 +15,8 @@ public class ReviewDTO {
     Double lat;
     List<MultipartFile> files;
     List<String> fileIds;
+    String reviewUpDateStr;
+    List<String> reviewIds;
 
     public String getId() {
         return id;
@@ -87,4 +89,22 @@ public class ReviewDTO {
     public void setFileIds(List<String> fileIds) {
         this.fileIds = fileIds;
     }
+
+    public String getReviewUpDateStr() {
+        return reviewUpDateStr;
+    }
+
+    public void setReviewUpDateStr(String reviewUpDateStr) {
+        this.reviewUpDateStr = reviewUpDateStr;
+    }
+
+    public List<String> getReviewIds() {
+        return reviewIds;
+    }
+
+    public void setReviewIds(List<String> reviewIds) {
+        this.reviewIds = reviewIds;
+    }
+
+
 }

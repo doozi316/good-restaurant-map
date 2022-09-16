@@ -2,25 +2,75 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.map.restaurant.good.dao.ReviewDAO">
     <insert id="saveReview">
-        insert into tbl_review (id, title, address, review, grade, lon, lat)
-        values (#{id}, #{title}, #{address}, #{review}, #{grade}, #{lon}, #{lat}) on duplicate key
+        insert into tbl_review (
+            id,
+            title,
+            address,
+            review,
+            grade,
+            lon,
+            lat,
+            update_date
+        )
+        values (
+            #{id},
+            #{title},
+            #{address},
+            #{review},
+            #{grade},
+            #{lon},
+            #{lat},
+            UTC_TIMESTAMP()
+        ) on duplicate key
         update
             title = #{title},
             address = #{address},
             review = #{review},
             grade = #{grade},
             lon = #{lon},
-            lat = #{lat}
+            lat = #{lat},
+            update_date = UTC_TIMESTAMP()
     </insert>
 
-    <select id="getReviews" resultType="hashMap">
-        select *
-        from tbl_review
+    <select id="getReviews" resultType="camelMap">
+        select
+            r.id,
+            r.title,
+            r.address,
+            r.review,
+            r.grade,
+            r.lon,
+            r.lat,
+            DATE_FORMAT(r.update_date, '%Y%m%d%H%i%s') as review_up_date_str,
+            f.file_id,
+            f.file_name,
+            f.file_size,
+            f.content_type,
+            DATE_FORMAT(f.update_date, '%Y%m%d%H%i%s') as file_up_date_str
+        from
+            tbl_review r
+        left join
+            tbl_file_info f
+        on
+            f.file_id = (
+                select
+                    file_id
+                from
+                    tbl_file_info file
+                where
+                    file.review_id = r.id
+                limit 1
+            )
+        order by r.update_date
     </select>
 
-    <delete id="deleteReview">
+    <delete id="deleteReviews">
         delete
         from tbl_review
-        where id = #{id}
+        <where>
+            <foreach collection="reviewIds" item="reviewId" separator="or">
+                id = #{reviewId}
+            </foreach>
+        </where>
     </delete>
 </mapper>

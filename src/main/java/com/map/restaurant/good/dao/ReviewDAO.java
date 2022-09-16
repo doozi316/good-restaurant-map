@@ -7,5 +7,5 @@ import java.util.List;
 public interface ReviewDAO {
     void saveReview(ReviewDTO reviewDTO);
     List<ReviewDTO> getReviews();
-    void deleteReview(@Param("id") String id);
+    void deleteReviews(@Param("reviewIds") List<String> reviewIds);
 }

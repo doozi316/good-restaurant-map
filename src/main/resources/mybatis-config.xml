@@ -5,4 +5,8 @@
         <setting name="mapUnderscoreToCamelCase" value="true" />
         <setting name="callSettersOnNulls" value="true"/>
     </settings>
+
+    <typeAliases>
+        <typeAlias alias="camelMap" type="com.map.restaurant.good.config.LowerHashMap"/>
+    </typeAliases>
 </configuration>

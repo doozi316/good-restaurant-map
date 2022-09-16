@@ -61,11 +61,11 @@ public class FileService {
                 Files.createDirectories(imgDirPath);
             }
 
-            this.imgDirPath = imgDirPath.resolve(
+            Path reviewImgDirPath = imgDirPath.resolve(
                 Paths.get(reviewId)).normalize().toAbsolutePath();
 
-            if (! Files.exists(this.imgDirPath)) {
-                Files.createDirectories(this.imgDirPath);
+            if (! Files.exists(reviewImgDirPath)) {
+                Files.createDirectories(reviewImgDirPath);
             }
         } catch (IOException e) {
             throw new ApiException("Failed to make index dir", e);
@@ -86,11 +86,11 @@ public class FileService {
                 throw new ApiException("Failed to store empty file.");
             }
 
-            Path destinationFile = imgDirPath.resolve(
-                    Paths.get(originFilename)).normalize().toAbsolutePath();
-            if (!destinationFile.getParent().equals(this.imgDirPath.toAbsolutePath())) {
-                throw new ApiException("Cannot store file outside current directory.");
-            }
+            Path destinationFile = imgDirPath
+                .resolve(Paths.get(reviewId))
+                .resolve(Paths.get(originFilename))
+                .normalize()
+                .toAbsolutePath();
 
             try (InputStream inputStream = file.getInputStream()) {
                 Files.copy(inputStream, destinationFile, StandardCopyOption.REPLACE_EXISTING);

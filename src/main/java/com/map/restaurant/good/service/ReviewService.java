@@ -29,8 +29,8 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(ReviewDTO reviewDTO) {
-        String id = reviewDTO.getId();
-        reviewDAO.deleteReview(id);
+    public void deleteReviews(ReviewDTO reviewDTO) {
+        List<String> reviewIds = reviewDTO.getReviewIds();
+        reviewDAO.deleteReviews(reviewIds);
     }
 }

@@ -18,6 +18,7 @@ export default {
     right: 0;
     bottom: 0;
     left: 0;
+    color: white;
     cursor: progress;
     z-index: 777;
     display: flex;

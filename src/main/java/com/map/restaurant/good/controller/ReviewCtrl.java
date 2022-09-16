@@ -31,8 +31,8 @@ public class ReviewCtrl {
         return reviewService.getReviews();
     }
 
-    @DeleteMapping("/deleteReview")
-    public void deleteReview(@RequestBody ReviewDTO reviewDTO) {
-        reviewService.deleteReview(reviewDTO);
+    @DeleteMapping("/deleteReviews")
+    public void deleteReviews(@RequestBody ReviewDTO reviewDTO) {
+        reviewService.deleteReviews(reviewDTO);
     }
 }
