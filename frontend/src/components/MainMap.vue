@@ -1,13 +1,20 @@
 <template>
-    <div class="main-map" ref="map">
+    <div
+        ref="map"
+        class="main-map"
+    >
         <div
-            class="overlay-tooltip"
-            ref="overlay"
             v-show="isShowOverlay"
+            ref="overlay"
+            class="overlay-tooltip"
         >
             <div class="overlay-content">
                 {{ selectedOverlayText }}
-                <BFormRating class="rating" v-model="selectedOverlayRating" readonly />
+                <BFormRating
+                    v-model="selectedOverlayRating"
+                    class="rating"
+                    readonly
+                />
             </div>
         </div>
         <ProgressSpinner v-if="processingCount > 0" />
@@ -15,22 +22,22 @@
 </template>
 
 <script>
-import axios from 'axios'
-import Geocoder from 'ol-geocoder'
-import OlLayerTile from 'ol/layer/Tile.js'
-import OlVectorSource from 'ol/source/Vector.js'
-import OlVectorLayer from 'ol/layer/Vector.js'
-import OlView from 'ol/View.js'
-import OlMap from 'ol/Map.js'
+import axios from 'axios';
+import Geocoder from 'ol-geocoder';
+import OlLayerTile from 'ol/layer/Tile.js';
+import OlVectorSource from 'ol/source/Vector.js';
+import OlVectorLayer from 'ol/layer/Vector.js';
+import OlView from 'ol/View.js';
+import OlMap from 'ol/Map.js';
 import OlFeature from 'ol/Feature.js';
 import OlPoint from 'ol/geom/Point.js';
-import OSM from 'ol/source/OSM.js'
-import OlStyle from 'ol/style/Style.js'
-import OlIcon from 'ol/style/Icon.js'
+import OSM from 'ol/source/OSM.js';
+import OlStyle from 'ol/style/Style.js';
+import OlIcon from 'ol/style/Icon.js';
 import Overlay from 'ol/Overlay.js';
-import ProgressSpinner from '@/components/ProgressSpinner.vue'
-import {toLonLat, transform} from 'ol/proj.js'
-import {defaults} from 'ol/control.js'
+import ProgressSpinner from '@/components/ProgressSpinner.vue';
+import { toLonLat, transform } from 'ol/proj.js';
+import { defaults } from 'ol/control.js';
 
 const EPSG_3857 = 'EPSG:3857';
 const EPSG_4326 = 'EPSG:4326';
@@ -38,7 +45,7 @@ const EPSG_4326 = 'EPSG:4326';
 export default {
     name: 'MainMap',
     components: {
-        ProgressSpinner
+        ProgressSpinner,
     },
     data() {
         return {
@@ -51,25 +58,24 @@ export default {
             vectorSource: undefined,
             iconsSource: undefined,
             processingCount: 0,
-        }
+        };
     },
     computed: {
         reviews() {
             return this.$store.state.reviews;
-        }
+        },
     },
     watch: {
         async reviews() {
-            if (this.vectorSource)
-                this.vectorSource.clear();
+            if (this.vectorSource) this.vectorSource.clear();
             this.drawFeatures();
-        }
+        },
     },
     async mounted() {
         const that = this;
         this.vectorSource = new OlVectorSource(EPSG_3857);
         const vectorLayer = new OlVectorLayer({
-            source: this.vectorSource
+            source: this.vectorSource,
         });
 
         this.olMap = new OlMap({
@@ -81,16 +87,16 @@ export default {
             }),
             layers: [
                 new OlLayerTile({
-                    source: new OSM()
+                    source: new OSM(),
                 }),
-                vectorLayer
+                vectorLayer,
             ],
             view: new OlView({
                 center: this.coordi4326To3857([127.1388684, 37.4449168]), // 경기도 성남
                 zoom: 10,
-                projection: EPSG_3857
-            })
-        })
+                projection: EPSG_3857,
+            }),
+        });
 
         await this.$store.dispatch('setReviews', this);
 
@@ -101,7 +107,7 @@ export default {
             that.isShowOverlay = false;
             that.olMap.removeOverlay(that.overlay);
 
-            that.olMap.forEachFeatureAtPixel(e.pixel, feature => {
+            that.olMap.forEachFeatureAtPixel(e.pixel, (feature) => {
                 if (feature.get('title') !== undefined) {
                     that.isShowOverlay = true;
                     that.selectedOverlayText = feature.get('title');
@@ -113,39 +119,41 @@ export default {
                         element: overlay,
                         position: feature.getGeometry().getCoordinates(),
                         positioning: 'bottom-center',
-                        offset: [0, -10]
-                    })
+                        offset: [0, -10],
+                    });
                     that.olMap.addOverlay(that.overlay);
                     that.olMap.getTargetElement().style.cursor = 'pointer';
                 }
-            })
-        })
+            });
+        });
 
         this.olMap.on('click', async (e) => {
             this.vectorSource.clear();
             geocoder.getSource().clear();
-            const [lon, lat] = toLonLat(e.coordinate)
-            const addressInfo = await that.getAddress(lon, lat)
+            const [lon, lat] = toLonLat(e.coordinate);
+            const addressInfo = await that.getAddress(lon, lat);
 
             this.$store.commit('setReview', undefined);
             this.$store.commit('setIsDisabledInput', false);
             this.$store.commit('setCurAddress', that.getUiAddress(addressInfo.data.display_name));
-            that.$store.commit('setLonLat', {lon, lat});
+            that.$store.commit('setLonLat', { lon, lat });
             this.$store.commit('setIsVisibleReviewList', false);
             await this.$store.commit('setCurFileList', []);
 
             const point = that.coordi4326To3857([lon, lat]);
             const feature = new OlFeature({
-                geometry: new OlPoint(point)
-            })
-            feature.setStyle(new OlStyle({
-                image: new OlIcon({
-                    scale: 0.7,
-                    src: '//cdn.rawgit.com/jonataswalker/map-utils/master/images/marker.png'
+                geometry: new OlPoint(point),
+            });
+            feature.setStyle(
+                new OlStyle({
+                    image: new OlIcon({
+                        scale: 0.7,
+                        src: '//cdn.rawgit.com/jonataswalker/map-utils/master/images/marker.png',
+                    }),
                 })
-            }))
+            );
 
-            const existFeature = that.olMap.forEachFeatureAtPixel(e.pixel, feature => {
+            const existFeature = that.olMap.forEachFeatureAtPixel(e.pixel, (feature) => {
                 this.$store.commit('setCurTitle', feature.get('title'));
                 this.$store.commit('setCurAddress', feature.get('address'));
                 this.$store.commit('setCurGrade', feature.get('grade'));
@@ -154,11 +162,10 @@ export default {
                 this.$store.commit('setIsDisabledInput', true);
                 this.$store.dispatch('setFileList', this);
                 return true;
-            })
+            });
 
-            if (!existFeature)
-                this.vectorSource.addFeature(feature);
-        })
+            if (!existFeature) this.vectorSource.addFeature(feature);
+        });
 
         const geocoder = new Geocoder('nominatim', {
             provider: 'osm',
@@ -166,36 +173,37 @@ export default {
             placeholder: '주소 검색',
             limit: 5, // 자동 완성 결과 최대 개수
             autoComplete: true,
-            keepOpen: true
+            keepOpen: true,
         });
         this.olMap.addControl(geocoder);
 
         geocoder.on('addresschosen', (evt) => {
             this.vectorSource.clear();
             that.$store.commit('setCurAddress', that.getUiAddress(evt.address.details.name));
-            that.$store.commit('setLonLat', { lon: evt.place.lon, lat: evt.place.lat });
+            that.$store.commit('setLonLat', {
+                lon: evt.place.lon,
+                lat: evt.place.lat,
+            });
         });
-
     },
     methods: {
         drawFeatures() {
-            if (this.iconsSource)
-                this.iconsSource.clear();
+            if (this.iconsSource) this.iconsSource.clear();
 
             this.iconsSource = new OlVectorSource(EPSG_3857);
             const iconsLayer = new OlVectorLayer({
-                source: this.iconsSource
+                source: this.iconsSource,
             });
             const style = new OlStyle({
                 image: new OlIcon({
                     scale: 0.8,
-                    src: require('../assets/images/spot.png')
-                })
+                    src: require('../assets/images/spot.png'),
+                }),
             });
-            const features = this.reviews.map(review => {
+            const features = this.reviews.map((review) => {
                 const point = this.coordi4326To3857([review.lon, review.lat]);
                 const feature = new OlFeature({
-                    geometry: new OlPoint(point)
+                    geometry: new OlPoint(point),
                 });
                 feature.set('title', review.title);
                 feature.set('grade', review.grade);
@@ -205,7 +213,7 @@ export default {
                 feature.setStyle(style);
 
                 return feature;
-            })
+            });
             this.iconsSource.addFeatures(features);
 
             this.olMap.addLayer(iconsLayer);
@@ -217,18 +225,16 @@ export default {
             return str.split(', ').reverse().join(' ');
         },
         getAddress(lon, lat) {
-            return axios.get(
-                'https://nominatim.openstreetmap.org/reverse',
-                {
-                    params: {
-                        format: 'json',
-                        lon: lon,
-                        lat: lat
-                    }
-                })
-        }
-    }
-}
+            return axios.get('https://nominatim.openstreetmap.org/reverse', {
+                params: {
+                    format: 'json',
+                    lon: lon,
+                    lat: lat,
+                },
+            });
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -244,8 +250,7 @@ export default {
         text-align: center;
 
         > .overlay-content::after {
-
-            content: "";
+            content: '';
             position: absolute;
 
             top: 100%;
@@ -255,11 +260,9 @@ export default {
             border-width: 5px;
             border-style: solid;
             border-color: rgba(0, 0, 0, 0.5) transparent transparent transparent;
-
-
         }
 
-        ::v-deep.rating {
+        ::v-deep .rating {
             font-size: 15px;
             background-color: transparent;
             border: none;
@@ -270,7 +273,7 @@ export default {
         }
     }
 
-    ::v-deep.ol-geocoder {
+    ::v-deep .ol-geocoder {
         position: absolute;
         right: 0;
         padding: 10px;
@@ -284,7 +287,8 @@ export default {
             opacity: 0.7;
         }
 
-        input, ul {
+        input,
+        ul {
             border-style: none;
             width: 200px;
             background-color: rgba(0, 0, 0, 0.5);

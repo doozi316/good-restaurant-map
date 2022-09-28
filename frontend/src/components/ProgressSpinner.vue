@@ -7,8 +7,8 @@
 <script>
 export default {
     name: 'ProgressSpinner',
-    functional: true
-}
+    functional: true,
+};
 </script>
 
 <style lang="scss" scoped>

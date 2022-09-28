@@ -9,92 +9,108 @@
                 리뷰 작성
             </BButton>
             <BButton
+                v-if="!isEditMode"
+                :disabled="!reviews.length"
                 class="ml-2"
                 size="sm"
                 variant="info"
                 @click="toggleEditMode"
-                v-if="!isEditMode"
             >
                 편집
             </BButton>
             <BButton
+                v-if="isEditMode"
                 class="ml-2"
                 size="sm"
                 variant="info"
                 @click="toggleEditMode"
-                v-if="isEditMode"
             >
                 편집 종료
             </BButton>
             <BButton
+                v-if="isEditMode"
                 class="ml-2"
                 size="sm"
                 variant="danger"
                 @click="deleteCheckedReviews"
-                v-if="isEditMode"
             >
                 선택 삭제
             </BButton>
         </div>
         <div class="review-list-area">
             <BCheckbox
-                class="ml-4"
                 v-if="isEditMode"
-                @change="checkAllReviews"
                 v-model="isAllSelected"
-            >전체 선택</BCheckbox>
-            <ul>
+                class="ml-4"
+                @change="checkAllReviews"
+                >전체 선택
+            </BCheckbox>
+            <ul v-if="reviews.length > 0">
                 <li
                     v-for="review in reviews"
                     :key="review.id"
                 >
                     <div class="review-item">
-                        <div class="checkbox-area">
+                        <div
+                            v-if="isEditMode"
+                            class="checkbox-area"
+                        >
                             <BCheckbox
-                                v-if="isEditMode"
                                 v-model="checkedReviewIds"
                                 :value="review.id"
                                 @change="checkReview"
                             />
                         </div>
-                        <div class="image-area" @click="goToReview(review)">
+                        <div
+                            class="image-area"
+                            @click="goToReview(review)"
+                        >
                             <BImgLazy
-                                class="review-image"
-                                :src="`${imgDirPath}/${review.id}/${review.fileName}`"
                                 :alt="review.title"
-                                rounded
+                                :src="`${imgDirPath}/${review.id}/${review.fileName}`"
                                 blank
                                 blank-color="grey"
+                                class="review-image"
+                                rounded
                             />
                         </div>
-                        <div class="review-info-area" @click="goToReview(review)">
+                        <div
+                            class="review-info-area"
+                            @click="goToReview(review)"
+                        >
                             <div class="review-title">
-                                {{review.title}}
+                                {{ review.title }}
                             </div>
                             <div class="review-address">
-                                {{review.address}}
+                                {{ review.address }}
                             </div>
                             <div class="review-update-date">
-                                {{getReviewUpdateDateStr(review.reviewUpDateStr)}}
+                                {{ getReviewUpdateDateStr(review.reviewUpDateStr) }}
                             </div>
                             <BFormRating
-                                class="review-rating"
                                 v-model="review.grade"
+                                class="review-rating"
                             />
                         </div>
                     </div>
                 </li>
             </ul>
+            <div
+                v-else
+                class="no-review-notice"
+            >
+                등록된 리뷰가 없습니다.
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import { IMG_DIR_PATH } from '@/common/Config.js'
-import { utcDateStrToVisualLocalDateStr } from '@/common/DateUtil.js'
-import { process } from '@/common/Api.js'
+import { IMG_DIR_PATH } from '@/common/Config.js';
+import { utcDateStrToVisualLocalDateStr } from '@/common/DateUtil.js';
+import { process } from '@/common/Api.js';
 import { confirm, ok } from '@/common/Dialog.js';
-import axios from "axios";
+import axios from 'axios';
 
 export default {
     name: 'ReviewList',
@@ -104,18 +120,17 @@ export default {
             isEditMode: false,
             checkedReviewIds: [],
             isAllSelected: false,
-        }
+        };
     },
     computed: {
         reviews() {
             return this.$store.state.reviews;
-        }
+        },
     },
     methods: {
         checkAllReviews() {
             this.checkedReviewIds = [];
-            if (this.isAllSelected)
-                this.checkedReviewIds = this.reviews.map(re => re.id);
+            if (this.isAllSelected) this.checkedReviewIds = this.reviews.map((re) => re.id);
         },
         checkReview() {
             this.isAllSelected = false;
@@ -123,18 +138,18 @@ export default {
         deleteCheckedReviews() {
             process(this, async () => {
                 const isConfirmed = await confirm(this, '선택한 리뷰를 삭제하시겠습니까?');
-                if (! isConfirmed) return;
+                if (!isConfirmed) return;
 
                 await axios.delete('/api/review/deleteReviews', {
                     data: {
-                        reviewIds: this.checkedReviewIds
-                    }
+                        reviewIds: this.checkedReviewIds,
+                    },
                 });
 
                 await ok(this, '삭제되었습니다.');
                 await this.$store.dispatch('setReviews', this);
                 this.toggleEditMode();
-            })
+            });
         },
         toggleEditMode() {
             this.isAllSelected = false;
@@ -148,9 +163,9 @@ export default {
             this.$store.commit('setReview', review);
             this.$store.commit('setIsVisibleReviewList', false);
             this.$store.dispatch('setFileList', this);
-        }
-    }
-}
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -175,7 +190,7 @@ export default {
         flex: 1;
 
         > ul {
-            list-style:none;
+            list-style: none;
             padding: 10px;
             margin: 0;
 
@@ -202,12 +217,10 @@ export default {
 
                     > .image-area {
                         margin-right: 20px;
-                        width: 100px;
-                        height: 80px;
 
                         > .review-image {
-                            width: 100%;
-                            height: 100%;
+                            width: 120px;
+                            height: 100px;
                             object-fit: cover;
                         }
                     }
@@ -256,7 +269,14 @@ export default {
             }
         }
 
+        > .no-review-notice {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 25px;
+        }
     }
 }
-
 </style>

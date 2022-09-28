@@ -1,12 +1,12 @@
 <template>
     <div class="side-bar-wrapper">
         <VueResizable
-            class="resizable-side-bar"
-            :width="500"
-            :min-width="500"
-            :max-width="Infinity"
-            :active="['r']"
             v-if="isVisibleSideBar"
+            :active="['r']"
+            :max-width="Infinity"
+            :min-width="500"
+            :width="500"
+            class="resizable-side-bar"
         >
             <ReviewList v-if="isVisibleReviewList" />
             <ReviewForm v-else />
@@ -16,48 +16,46 @@
             size="sm"
             @click="showSideBar"
         >
-            <FontAwesomeIcon :icon="isVisibleSideBar ? 'angle-left' : 'angle-right'"/>
+            <FontAwesomeIcon :icon="isVisibleSideBar ? 'angle-left' : 'angle-right'" />
         </BButton>
     </div>
 </template>
 
 <script>
-
-import VueResizable from 'vue-resizable'
-import ReviewForm from '@/components/ReviewForm.vue'
-import ReviewList from '@/components/ReviewList.vue'
-import { mapState } from 'vuex'
+import VueResizable from 'vue-resizable';
+import ReviewForm from '@/components/ReviewForm.vue';
+import ReviewList from '@/components/ReviewList.vue';
+import { mapState } from 'vuex';
 
 export default {
     name: 'SideBar',
     components: {
         ReviewForm,
         ReviewList,
-        VueResizable
+        VueResizable,
     },
-    data () {
+    data() {
         return {
             processingCount: 0,
             isVisibleSideBar: true,
-        }
+        };
     },
     computed: {
         ...mapState({
-            curReviewId: state => state.curReviewId,
-            isDisabledInput: state => state.isDisabledInput,
-            isVisibleReviewList: state => state.isVisibleReviewList
-        })
+            curReviewId: (state) => state.curReviewId,
+            isDisabledInput: (state) => state.isDisabledInput,
+            isVisibleReviewList: (state) => state.isVisibleReviewList,
+        }),
     },
     methods: {
-        showSideBar () {
-            this.isVisibleSideBar = !this.isVisibleSideBar
+        showSideBar() {
+            this.isVisibleSideBar = !this.isVisibleSideBar;
         },
-    }
-}
+    },
+};
 </script>
 
 <style lang="scss" scoped>
-
 .side-bar-wrapper {
     display: flex;
     color: #fff;

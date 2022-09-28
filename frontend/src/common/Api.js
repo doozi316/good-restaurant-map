@@ -13,10 +13,9 @@ export async function process(that, func) {
             okVariant: 'danger',
             headerClass: 'p-2 border-bottom-0',
             footerClass: 'p-2 border-top-0',
-        })
+        });
         return await Promise.reject(err);
     } finally {
         that.processingCount--;
     }
-
 }

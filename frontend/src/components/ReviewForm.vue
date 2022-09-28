@@ -13,28 +13,35 @@
                 placeholder="이름을 입력해주세요."
             />
         </div>
-        <div class="image-area" v-if="!isDisabledInput">
-            <div class="file-input-wrapper"
-                 @dragover="onDragOver"
-                 @drop="onDrop"
-                 v-if="!fileList.length && !curFileList.length"
+        <div
+            v-if="!isDisabledInput"
+            class="image-area"
+        >
+            <div
+                v-if="!fileList.length && !curFileList.length"
+                class="file-input-wrapper"
+                @dragover="onDragOver"
+                @drop="onDrop"
             >
                 <input
-                    class="file-input"
-                    type="file"
                     accept="image/*"
-                    @change="onChangeFiles"
+                    class="file-input"
                     multiple
+                    type="file"
+                    @change="onChangeFiles"
                 />
                 사진을 업로드 해주세요
             </div>
-            <div class="file-list" v-else>
+            <div
+                v-else
+                class="file-list"
+            >
                 <ul v-if="fileList.length > 0">
                     <li
                         v-for="(file, idx) in fileList"
                         :key="idx"
                     >
-                        {{file.name}}
+                        {{ file.name }}
                         <FontAwesomeIcon
                             class="delete-file-icon"
                             icon="times"
@@ -47,7 +54,7 @@
                         v-for="(file, idx) in curFileList"
                         :key="idx"
                     >
-                        {{file.fileName}}
+                        {{ file.fileName }}
                         <FontAwesomeIcon
                             class="delete-file-icon"
                             icon="times"
@@ -58,36 +65,39 @@
                 <ul>
                     <li class="file-btn-area">
                         <BButton
+                            class="file-delete-btn"
                             size="sm"
                             @click="deleteAllFile"
-                            class="file-delete-btn"
                         >
                             전체 삭제
                             <FontAwesomeIcon icon="times" />
                         </BButton>
                         <BButton
-                            size="sm"
                             class="file-add-btn"
+                            size="sm"
                         >
                             추가
                             <FontAwesomeIcon icon="plus" />
                             <input
-                                class="file-input"
-                                type="file"
                                 accept="image/*"
-                                @change="onChangeFiles"
+                                class="file-input"
                                 multiple
+                                type="file"
+                                @change="onChangeFiles"
                             />
                         </BButton>
                     </li>
                 </ul>
             </div>
         </div>
-        <div class="slide-image-area" v-else>
+        <div
+            v-else
+            class="slide-image-area"
+        >
             <BCarousel
+                v-if="curFileList.length > 0"
                 controls
                 indicators
-                v-if="curFileList.length > 0"
             >
                 <BCarouselSlide
                     v-for="(fileInfo, idx) in curFileList"
@@ -96,16 +106,19 @@
                     reloadable
                 />
             </BCarousel>
-            <div class="no-image-text" v-else>
+            <div
+                v-else
+                class="no-image-text"
+            >
                 <span>등록된 사진이 없습니다.</span>
             </div>
         </div>
         <div class="location-info-area">
-            <FontAwesomeIcon icon="location-dot"/>
+            <FontAwesomeIcon icon="location-dot" />
             <BInput
-                placeholder="위치 정보 직접 입력하기"
-                :disabled="isDisabledInput"
                 v-model="address"
+                :disabled="isDisabledInput"
+                placeholder="위치 정보 직접 입력하기"
             />
         </div>
         <div class="rate-area">
@@ -117,31 +130,31 @@
         <div class="review-area">
             <BFormTextarea
                 ref="textarea"
-                placeholder="후기를 입력해주세요."
                 v-model="review"
                 :disabled="isDisabledInput"
+                placeholder="후기를 입력해주세요."
             />
         </div>
         <div class="bottom-btn-area">
             <BButton
+                v-if="!isDisabledInput"
                 class="save-btn"
                 @click="saveReview"
-                v-if="!isDisabledInput"
             >
                 저장
             </BButton>
             <BButton
+                v-if="isDisabledInput"
                 class="mr-2"
                 variant="success"
                 @click="modifyReview"
-                v-if="isDisabledInput"
             >
                 수정하기
             </BButton>
             <BButton
+                v-if="isDisabledInput"
                 variant="danger"
                 @click="removeReview"
-                v-if="isDisabledInput"
             >
                 삭제하기
             </BButton>
@@ -151,36 +164,36 @@
 </template>
 
 <script>
-import axios from 'axios'
-import ProgressSpinner from '@/components/ProgressSpinner.vue'
-import { IMG_DIR_PATH } from '@/common/Config.js'
+import axios from 'axios';
+import ProgressSpinner from '@/components/ProgressSpinner.vue';
+import { IMG_DIR_PATH } from '@/common/Config.js';
 import { confirm, ok } from '@/common/Dialog.js';
 import { process } from '@/common/Api.js';
-import { mapState } from 'vuex'
+import { mapState } from 'vuex';
 
 export default {
     name: 'SideBar',
     components: {
-        ProgressSpinner
+        ProgressSpinner,
     },
-    data () {
+    data() {
         return {
             imgDirPath: IMG_DIR_PATH,
             fileList: [],
             deletedFileIds: [],
             isVisibleSideBar: true,
             processingCount: 0,
-        }
+        };
     },
     computed: {
         ...mapState({
-            reviewId: state => state.curReviewId,
-            curAddress: state => state.curAddress,
-            curGrade: state => state.curGrade,
-            curReview: state => state.curReview,
-            curTitle: state => state.curTitle,
-            isDisabledInput: state => state.isDisabledInput,
-            curFileList: state => state.curFileList,
+            reviewId: (state) => state.curReviewId,
+            curAddress: (state) => state.curAddress,
+            curGrade: (state) => state.curGrade,
+            curReview: (state) => state.curReview,
+            curTitle: (state) => state.curTitle,
+            isDisabledInput: (state) => state.isDisabledInput,
+            curFileList: (state) => state.curFileList,
         }),
         address: {
             get() {
@@ -188,32 +201,32 @@ export default {
             },
             set(newVal) {
                 this.$store.commit('setCurAddress', newVal);
-            }
+            },
         },
         grade: {
             get() {
-                return this.curGrade
+                return this.curGrade;
             },
             set(newVal) {
                 this.$store.commit('setCurGrade', newVal);
-            }
+            },
         },
         review: {
             get() {
-                return this.curReview
+                return this.curReview;
             },
             set(newVal) {
                 this.$store.commit('setCurReview', newVal);
-            }
+            },
         },
         title: {
             get() {
-                return this.curTitle
+                return this.curTitle;
             },
             set(newVal) {
                 this.$store.commit('setCurTitle', newVal);
-            }
-        }
+            },
+        },
     },
     methods: {
         goToReviewList() {
@@ -223,16 +236,15 @@ export default {
         addDeletedFileId(idx) {
             this.deletedFileIds.push(this.curFileList[idx].fileId);
             const newCurFileList = this.curFileList.reduce((arr, item, i) => {
-                if (i !== idx)
-                    arr.push(item);
+                if (i !== idx) arr.push(item);
                 return arr;
-            }, [])
+            }, []);
             this.$store.commit('setCurFileList', newCurFileList);
         },
         deleteAllFile() {
             this.curFileList.forEach((file, idx) => {
                 this.addDeletedFileId(idx);
-            })
+            });
             this.$store.commit('setCurFileList', []);
             this.fileList = [];
         },
@@ -248,8 +260,8 @@ export default {
         onDragOver(e) {
             e.preventDefault();
         },
-        showSideBar () {
-            this.isVisibleSideBar = !this.isVisibleSideBar
+        showSideBar() {
+            this.isVisibleSideBar = !this.isVisibleSideBar;
         },
         modifyReview() {
             this.$store.commit('setIsDisabledInput', false);
@@ -257,22 +269,24 @@ export default {
         removeReview() {
             process(this, async () => {
                 const isConfirmed = await confirm(this, `'${this.title}' 리뷰를 삭제하시겠습니까?`);
-                if (! isConfirmed) return;
+                if (!isConfirmed) return;
 
                 await axios.delete('/api/review/deleteReviews', {
                     data: {
-                        reviewIds: [this.reviewId]
-                    }
+                        reviewIds: [this.reviewId],
+                    },
                 });
 
                 await ok(this, '삭제되었습니다.');
 
                 await this.$store.dispatch('setReviews', this);
-            })
+            });
         },
-        saveReview () {
+        saveReview() {
             process(this, async () => {
-                await axios.post('/api/review/saveReview', {
+                await axios.post(
+                    '/api/review/saveReview',
+                    {
                         id: this.reviewId,
                         title: this.title,
                         address: this.address,
@@ -281,7 +295,7 @@ export default {
                         lon: this.$store.state.curLon,
                         lat: this.$store.state.curLat,
                         files: this.fileList,
-                        fileIds: this.deletedFileIds
+                        fileIds: this.deletedFileIds,
                     },
                     {
                         transformRequest: function (data) {
@@ -289,28 +303,27 @@ export default {
                             for (let key in data) {
                                 const value = data[key];
 
-                                if (! value)
-                                    continue;
+                                if (!value) continue;
 
                                 if (key === 'files')
-                                    value.forEach(file => {
+                                    value.forEach((file) => {
                                         formData.append(key, file);
-                                    })
-                                else
-                                    formData.append(key, value)
+                                    });
+                                else formData.append(key, value);
                             }
-                            return formData
-                        }
-                    })
+                            return formData;
+                        },
+                    }
+                );
                 await ok(this, '저장 완료되었습니다.');
                 this.fileList = [];
                 await this.$store.dispatch('setReviews', this);
                 await this.$store.dispatch('setFileList', this);
                 this.$store.commit('setIsDisabledInput', true);
-            })
-        }
-    }
-}
+            });
+        },
+    },
+};
 </script>
 
 <style lang="scss" scoped>
@@ -328,6 +341,7 @@ export default {
 
         > .goto-review-list-btn {
             color: white;
+            width: fit-content;
 
             &:hover {
                 cursor: pointer;
@@ -335,7 +349,9 @@ export default {
             }
         }
 
-        input, input::placeholder, input:focus {
+        input,
+        input::placeholder,
+        input:focus {
             font-family: 'Nanum Square', serif;
             font-size: 2rem;
             font-weight: bold;
@@ -349,7 +365,8 @@ export default {
     > .image-area {
         padding: 0 10px;
 
-        > .file-input-wrapper, .file-list {
+        > .file-input-wrapper,
+        .file-list {
             position: relative;
             display: flex;
             justify-content: center;
@@ -443,7 +460,9 @@ export default {
         display: flex;
         align-items: center;
 
-        input, input::placeholder, input:focus {
+        input,
+        input::placeholder,
+        input:focus {
             font-size: 1rem;
             color: #fff;
             box-shadow: none;
@@ -468,7 +487,8 @@ export default {
     > .review-area {
         padding: 20px 10px;
 
-        textarea, textarea::placeholder {
+        textarea,
+        textarea::placeholder {
             min-height: 300px;
             resize: none;
             color: #fff;
@@ -489,5 +509,4 @@ export default {
         }
     }
 }
-
 </style>

@@ -1,9 +1,9 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import Vue from 'vue';
+import Vuex from 'vuex';
 import axios from 'axios';
 import { process } from '@/common/Api.js';
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
     state: {
@@ -17,7 +17,7 @@ export default new Vuex.Store({
         curReview: undefined,
         isDisabledInput: true,
         curFileList: [],
-        isVisibleReviewList: true
+        isVisibleReviewList: true,
     },
     mutations: {
         setIsDisabledInput: (state, bool) => {
@@ -40,19 +40,14 @@ export default new Vuex.Store({
             state.curReview = review;
         },
         setReviews: (state, reviews) => {
-            if (state.reviews &&
-                reviews &&
-                state.reviews.length !== reviews.length) {
-                const ids = state.reviews.map(re => re.id);
-                const curReview = reviews.find(review => !ids.includes(review.id));
-                if (curReview)
-                    state.curReviewId = curReview.id;
+            if (state.reviews && reviews && state.reviews.length !== reviews.length) {
+                const ids = state.reviews.map((re) => re.id);
+                const curReview = reviews.find((review) => !ids.includes(review.id));
+                if (curReview) state.curReviewId = curReview.id;
             }
             state.reviews = reviews;
 
-            const review = reviews.find(review =>
-                review.id === state.curReviewId
-            );
+            const review = reviews.find((review) => review.id === state.curReviewId);
 
             setReview(state, review);
         },
@@ -73,26 +68,26 @@ export default new Vuex.Store({
             setIsVisibleReviewList(state, false);
             setIsDisabledInput(state, false);
             setReview(state);
-        }
+        },
     },
     actions: {
-        async setReviews({commit}, that) {
+        async setReviews({ commit }, that) {
             await process(that, async () => {
                 const result = await axios.get('/api/review/getReviews');
                 await commit('setReviews', result.data);
-            })
+            });
         },
-        async setFileList({commit, state}, that) {
+        async setFileList({ commit, state }, that) {
             await process(that, async () => {
                 const result = await axios.get('/api/file/getImages', {
-                    params: { reviewId: state.curReviewId }
+                    params: { reviewId: state.curReviewId },
                 });
                 await commit('setCurFileList', result.data);
-            })
-        }
+            });
+        },
     },
-    modules: {}
-})
+    modules: {},
+});
 
 function setReview(state, review) {
     state.curReviewId = review ? review.id : review;
