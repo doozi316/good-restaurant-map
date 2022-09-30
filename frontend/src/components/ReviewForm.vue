@@ -279,7 +279,7 @@ export default {
 
                 await ok(this, '삭제되었습니다.');
 
-                await this.$store.dispatch('setReviews', this);
+                await this.$store.dispatch('setReviewsByLimit', this);
             });
         },
         saveReview() {
@@ -317,8 +317,7 @@ export default {
                 );
                 await ok(this, '저장 완료되었습니다.');
                 this.fileList = [];
-                await this.$store.dispatch('setReviews', this);
-                await this.$store.dispatch('setFileList', this);
+                await this.$store.dispatch('setReview', this);
                 this.$store.commit('setIsDisabledInput', true);
             });
         },

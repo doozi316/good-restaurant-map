@@ -24,8 +24,21 @@ public class ReviewService {
         reviewDAO.saveReview(reviewDTO);
     }
 
-    public List<ReviewDTO> getReviews() {
-        return reviewDAO.getReviews();
+    public int getReviewsCnt() {
+        return reviewDAO.getReviewsCnt();
+    }
+
+    public ReviewDTO getReview(String reviewId) {
+        return reviewDAO.getReview(reviewId);
+    }
+
+    public List<ReviewDTO> getReviewsByLimit(Integer curPage, Integer countList) {
+        Integer offset = (curPage - 1) * countList;
+        return reviewDAO.getReviewsByLimit(offset, countList);
+    }
+
+    public List<ReviewDTO> getReviewsForMap() {
+        return reviewDAO.getReviewsForMap();
     }
 
     @Transactional

@@ -8,8 +8,8 @@
             :width="500"
             class="resizable-side-bar"
         >
-            <ReviewList v-if="isVisibleReviewList" />
-            <ReviewForm v-else />
+            <ReviewList v-show="isVisibleReviewList" />
+            <ReviewForm v-show="!isVisibleReviewList" />
         </VueResizable>
         <BButton
             class="side-bar-active-btn"
@@ -25,7 +25,6 @@
 import VueResizable from 'vue-resizable';
 import ReviewForm from '@/components/ReviewForm.vue';
 import ReviewList from '@/components/ReviewList.vue';
-import { mapState } from 'vuex';
 
 export default {
     name: 'SideBar',
@@ -41,11 +40,9 @@ export default {
         };
     },
     computed: {
-        ...mapState({
-            curReviewId: (state) => state.curReviewId,
-            isDisabledInput: (state) => state.isDisabledInput,
-            isVisibleReviewList: (state) => state.isVisibleReviewList,
-        }),
+        isVisibleReviewList() {
+            return this.$store.state.isVisibleReviewList;
+        },
     },
     methods: {
         showSideBar() {

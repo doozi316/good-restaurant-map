@@ -6,6 +6,10 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 public interface ReviewDAO {
     void saveReview(ReviewDTO reviewDTO);
-    List<ReviewDTO> getReviews();
+    ReviewDTO getReview(@Param("reviewId") String reviewId);
+    int getReviewsCnt();
+    List<ReviewDTO> getReviewsByLimit(@Param("offset") Integer offset,
+                                      @Param("countList") Integer countList);
+    List<ReviewDTO> getReviewsForMap();
     void deleteReviews(@Param("reviewIds") List<String> reviewIds);
 }

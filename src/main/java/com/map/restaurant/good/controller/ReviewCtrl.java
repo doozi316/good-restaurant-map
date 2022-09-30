@@ -26,9 +26,25 @@ public class ReviewCtrl {
         fileService.saveFiles(reviewDTO);
     }
 
-    @GetMapping("/getReviews")
-    public List<ReviewDTO> getReviews() {
-        return reviewService.getReviews();
+    @GetMapping("/getReview")
+    public ReviewDTO getReview(@RequestParam String reviewId) {
+        return reviewService.getReview(reviewId);
+    }
+
+    @GetMapping("/getReviewsCnt")
+    public int getReviewsCnt() {
+        return reviewService.getReviewsCnt();
+    }
+
+    @GetMapping("/getReviewsByLimit")
+    public List<ReviewDTO> getReviewsByLimit(@RequestParam Integer curPage,
+                                             @RequestParam Integer countList) {
+        return reviewService.getReviewsByLimit(curPage, countList);
+    }
+
+    @GetMapping("/getReviewsForMap")
+    public List<ReviewDTO> getReviewsForMap() {
+        return reviewService.getReviewsForMap();
     }
 
     @DeleteMapping("/deleteReviews")

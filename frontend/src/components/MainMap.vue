@@ -38,6 +38,7 @@ import Overlay from 'ol/Overlay.js';
 import ProgressSpinner from '@/components/ProgressSpinner.vue';
 import { toLonLat, transform } from 'ol/proj.js';
 import { defaults } from 'ol/control.js';
+import { mapState } from 'vuex';
 
 const EPSG_3857 = 'EPSG:3857';
 const EPSG_4326 = 'EPSG:4326';
@@ -61,14 +62,23 @@ export default {
         };
     },
     computed: {
-        reviews() {
-            return this.$store.state.reviews;
-        },
+        ...mapState({
+            reviewsForMap: (state) => state.reviewsForMap,
+            curReview: (state) => state.curReview,
+            curLon: (state) => state.curLon,
+            curLat: (state) => state.curLat,
+        }),
     },
     watch: {
-        async reviews() {
+        async reviewsForMap() {
             if (this.vectorSource) this.vectorSource.clear();
             this.drawFeatures();
+        },
+        curReview() {
+            if (!this.curReview || !this.curLon || !this.curLat) return;
+            const coordinate = [this.curLon, this.curLat];
+            this.olMap.getView().setZoom(18);
+            this.olMap.getView().setCenter(this.coordi4326To3857(coordinate));
         },
     },
     async mounted() {
@@ -98,7 +108,7 @@ export default {
             }),
         });
 
-        await this.$store.dispatch('setReviews', this);
+        await this.$store.dispatch('setReviewsForMap', this);
 
         this.drawFeatures();
 
@@ -154,13 +164,9 @@ export default {
             );
 
             const existFeature = that.olMap.forEachFeatureAtPixel(e.pixel, (feature) => {
-                this.$store.commit('setCurTitle', feature.get('title'));
-                this.$store.commit('setCurAddress', feature.get('address'));
-                this.$store.commit('setCurGrade', feature.get('grade'));
-                this.$store.commit('setCurReview', feature.get('review'));
                 this.$store.commit('setCurReviewId', feature.get('reviewId'));
                 this.$store.commit('setIsDisabledInput', true);
-                this.$store.dispatch('setFileList', this);
+                this.$store.dispatch('setReview', this);
                 return true;
             });
 
@@ -200,15 +206,13 @@ export default {
                     src: require('../assets/images/spot.png'),
                 }),
             });
-            const features = this.reviews.map((review) => {
+            const features = this.reviewsForMap.map((review) => {
                 const point = this.coordi4326To3857([review.lon, review.lat]);
                 const feature = new OlFeature({
                     geometry: new OlPoint(point),
                 });
                 feature.set('title', review.title);
                 feature.set('grade', review.grade);
-                feature.set('address', review.address);
-                feature.set('review', review.review);
                 feature.set('reviewId', review.id);
                 feature.setStyle(style);
 
