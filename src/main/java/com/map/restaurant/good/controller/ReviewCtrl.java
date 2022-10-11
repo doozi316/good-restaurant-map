@@ -26,9 +26,21 @@ public class ReviewCtrl {
         fileService.saveFiles(reviewDTO);
     }
 
-    @GetMapping("/getReviews")
-    public List<ReviewDTO> getReviews() {
-        return reviewService.getReviews();
+    @GetMapping("/getReview")
+    public ReviewDTO getReview(@RequestParam String reviewId) {
+        return reviewService.getReview(reviewId);
+    }
+
+    @GetMapping("/getReviewsByKeySet")
+    public List<ReviewDTO> getReviewsByKeySet(
+        @RequestParam(value = "reviewUpdateDate", required = false) String reviewUpdateDate,
+        @RequestParam(value = "reviewId", required = false) String reviewId) {
+        return reviewService.getReviewsByKeySet(reviewUpdateDate, reviewId);
+    }
+
+    @GetMapping("/getReviewsForMap")
+    public List<ReviewDTO> getReviewsForMap() {
+        return reviewService.getReviewsForMap();
     }
 
     @DeleteMapping("/deleteReviews")

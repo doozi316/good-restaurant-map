@@ -37,7 +37,10 @@
                 선택 삭제
             </BButton>
         </div>
-        <div class="review-list-area">
+        <div
+            class="review-list-area"
+            @scroll="onScroll"
+        >
             <BCheckbox
                 v-if="isEditMode"
                 v-model="isAllSelected"
@@ -94,6 +97,12 @@
                         </div>
                     </div>
                 </li>
+                <li
+                    v-if="processingCount > 0"
+                    class="progress-list"
+                >
+                    <ProgressSpinner />
+                </li>
             </ul>
             <div
                 v-else
@@ -111,23 +120,58 @@ import { utcDateStrToVisualLocalDateStr } from '@/common/DateUtil.js';
 import { process } from '@/common/Api.js';
 import { confirm, ok } from '@/common/Dialog.js';
 import axios from 'axios';
+import ProgressSpinner from '@/components/ProgressSpinner.vue';
 
 export default {
     name: 'ReviewList',
     data() {
         return {
+            processingCount: 0,
             imgDirPath: IMG_DIR_PATH,
             isEditMode: false,
             checkedReviewIds: [],
             isAllSelected: false,
+            reviewUpdateDate: undefined,
+            reviewId: undefined,
         };
+    },
+    components: {
+        ProgressSpinner,
     },
     computed: {
         reviews() {
             return this.$store.state.reviews;
         },
+        isEndOfList() {
+            return this.$store.state.isEndOfList;
+        },
+    },
+    created() {
+        this.getReviews();
     },
     methods: {
+        async onScroll(e) {
+            if (this.isEndOfList) return;
+            let { scrollTop, clientHeight, scrollHeight } = e.target;
+            if (scrollTop + clientHeight >= scrollHeight) {
+                await this.getReviews();
+            }
+        },
+        async getReviews() {
+            const params = {
+                that: this,
+                reviewUpdateDate: this.reviewUpdateDate,
+                reviewId: this.reviewId,
+            };
+            await this.$store.dispatch('setReviewsByKeySet', params);
+            if (this.reviews.length > 0) {
+                console.log('# reviews', this.reviews);
+                const lastReview = this.reviews[this.reviews.length - 1];
+                console.log('# lastReview', lastReview);
+                this.reviewUpdateDate = lastReview.reviewUpDateStr;
+                this.reviewId = lastReview.id;
+            }
+        },
         checkAllReviews() {
             this.checkedReviewIds = [];
             if (this.isAllSelected) this.checkedReviewIds = this.reviews.map((re) => re.id);
@@ -147,8 +191,8 @@ export default {
                 });
 
                 await ok(this, '삭제되었습니다.');
-                await this.$store.dispatch('setReviews', this);
                 this.toggleEditMode();
+                await this.$store.dispatch('setReviewsByKeySet', { that: this });
             });
         },
         toggleEditMode() {
@@ -266,6 +310,11 @@ export default {
                         }
                     }
                 }
+            }
+
+            > .progress-list {
+                position: relative;
+                padding: 50px 0;
             }
         }
 

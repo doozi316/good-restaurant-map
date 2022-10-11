@@ -32,7 +32,7 @@
             update_date = UTC_TIMESTAMP()
     </insert>
 
-    <select id="getReviews" resultType="camelMap">
+    <select id="getReviewsByKeySet" resultType="camelMap">
         select
             r.id,
             r.title,
@@ -61,7 +61,42 @@
                     file.review_id = r.id
                 limit 1
             )
-        order by r.update_date
+        <where>
+            <if test="reviewUpdateDate != null and reviewId != null">
+                r.update_date <![CDATA[<=]]> #{reviewUpdateDate}
+                and
+                r.id <![CDATA[<]]> #{reviewId}
+            </if>
+        </where>
+        order by r.update_date, r.id desc
+        limit 10
+    </select>
+
+    <select id="getReview" resultType="com.map.restaurant.good.dto.ReviewDTO">
+        select
+            r.id,
+            r.title,
+            r.address,
+            r.review,
+            r.grade,
+            r.lon,
+            r.lat,
+            DATE_FORMAT(r.update_date, '%Y%m%d%H%i%s') as review_up_date_str
+        from
+            tbl_review r
+        where
+            r.id = #{reviewId}
+    </select>
+
+    <select id="getReviewsForMap" resultType="camelMap">
+        select
+            r.id,
+            r.title,
+            r.grade,
+            r.lon,
+            r.lat
+        from
+            tbl_review r
     </select>
 
     <delete id="deleteReviews">

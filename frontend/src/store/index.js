@@ -8,6 +8,7 @@ Vue.use(Vuex);
 export default new Vuex.Store({
     state: {
         reviews: [],
+        reviewsForMap: [],
         curLon: undefined,
         curLat: undefined,
         curReviewId: undefined,
@@ -18,6 +19,7 @@ export default new Vuex.Store({
         isDisabledInput: true,
         curFileList: [],
         isVisibleReviewList: true,
+        isEndOfList: false,
     },
     mutations: {
         setIsDisabledInput: (state, bool) => {
@@ -39,17 +41,15 @@ export default new Vuex.Store({
         setCurReview: (state, review) => {
             state.curReview = review;
         },
-        setReviews: (state, reviews) => {
-            if (state.reviews && reviews && state.reviews.length !== reviews.length) {
-                const ids = state.reviews.map((re) => re.id);
-                const curReview = reviews.find((review) => !ids.includes(review.id));
-                if (curReview) state.curReviewId = curReview.id;
-            }
+        setReviewsByKeySet: (state, reviews) => {
             state.reviews = reviews;
-
-            const review = reviews.find((review) => review.id === state.curReviewId);
-
-            setReview(state, review);
+            setIsVisibleReviewList(state, true);
+        },
+        addReviewsByKeySet: (state, reviews) => {
+            state.reviews.push(...reviews);
+        },
+        setReviewsForMap: (state, reviews) => {
+            state.reviewsForMap = reviews;
         },
         setReview: (state, review) => {
             setReview(state, review);
@@ -69,12 +69,40 @@ export default new Vuex.Store({
             setIsDisabledInput(state, false);
             setReview(state);
         },
+        setIsEndOfList(state, bool) {
+            state.isEndOfList = bool;
+        },
     },
     actions: {
-        async setReviews({ commit }, that) {
+        async setReview({ state, dispatch }, that) {
             await process(that, async () => {
-                const result = await axios.get('/api/review/getReviews');
-                await commit('setReviews', result.data);
+                const result = await axios.get('/api/review/getReview', {
+                    params: {
+                        reviewId: state.curReviewId,
+                    },
+                });
+                setReview(state, result.data);
+                dispatch('setFileList', that);
+            });
+        },
+        async setReviewsForMap({ commit }, that) {
+            await process(that, async () => {
+                const result = await axios.get('/api/review/getReviewsForMap');
+                await commit('setReviewsForMap', result.data);
+            });
+        },
+        async setReviewsByKeySet({ commit }, { that, reviewUpdateDate, reviewId }) {
+            await process(that, async () => {
+                const result = await axios.get('/api/review/getReviewsByKeySet', {
+                    params: {
+                        reviewUpdateDate: reviewUpdateDate,
+                        reviewId: reviewId,
+                    },
+                });
+                if (!reviewUpdateDate && !reviewId) commit('setReviewsByKeySet', result.data);
+                else commit('addReviewsByKeySet', result.data);
+                if (!result.data.length) commit('setIsEndOfList', true);
+                else commit('setIsEndOfList', false);
             });
         },
         async setFileList({ commit, state }, that) {

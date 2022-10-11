@@ -24,8 +24,16 @@ public class ReviewService {
         reviewDAO.saveReview(reviewDTO);
     }
 
-    public List<ReviewDTO> getReviews() {
-        return reviewDAO.getReviews();
+    public ReviewDTO getReview(String reviewId) {
+        return reviewDAO.getReview(reviewId);
+    }
+
+    public List<ReviewDTO> getReviewsByKeySet(String reviewUpdateDate, String reviewId) {
+        return reviewDAO.getReviewsByKeySet(reviewUpdateDate, reviewId);
+    }
+
+    public List<ReviewDTO> getReviewsForMap() {
+        return reviewDAO.getReviewsForMap();
     }
 
     @Transactional

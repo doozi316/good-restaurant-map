@@ -13,7 +13,7 @@ export default {
 
 <style lang="scss" scoped>
 .progress-spinner {
-    position: fixed;
+    position: absolute;
     top: 0;
     right: 0;
     bottom: 0;
