@@ -10,8 +10,9 @@ import {
     faAngleLeft,
     faAngleRight,
     faLocationDot,
-    faTimes,
     faPlus,
+    faSearch,
+    faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 
 // 3. 불러온 아이콘을 라이브러리에 담기
@@ -20,6 +21,7 @@ library.add(faAngleRight);
 library.add(faLocationDot);
 library.add(faTimes);
 library.add(faPlus);
+library.add(faSearch);
 
 // 4. fontawesome 아이콘을 Vue 템플릿에서 사용할 수 있도록 등록
 Vue.component('FontAwesomeIcon', FontAwesomeIcon);

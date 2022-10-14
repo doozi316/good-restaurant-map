@@ -2,6 +2,7 @@
     <div class="review-list-wrapper">
         <div class="header-area">
             <BButton
+                class="header-btn"
                 size="sm"
                 variant="warning"
                 @click="$store.commit('registerReview')"
@@ -11,7 +12,7 @@
             <BButton
                 v-if="!isEditMode"
                 :disabled="!reviews.length"
-                class="ml-2"
+                class="header-btn ml-2"
                 size="sm"
                 variant="info"
                 @click="toggleEditMode"
@@ -20,7 +21,7 @@
             </BButton>
             <BButton
                 v-if="isEditMode"
-                class="ml-2"
+                class="header-btn ml-2"
                 size="sm"
                 variant="info"
                 @click="toggleEditMode"
@@ -29,12 +30,23 @@
             </BButton>
             <BButton
                 v-if="isEditMode"
-                class="ml-2"
+                class="header-btn ml-2"
                 size="sm"
                 variant="danger"
                 @click="deleteCheckedReviews"
             >
                 선택 삭제
+            </BButton>
+            <BInput
+                v-model="searchInput"
+                class="search-input ml-2"
+                @keydown.enter="searchReview"
+            />
+            <BButton
+                class="search-btn"
+                @click="searchReview"
+            >
+                <FontAwesomeIcon icon="search" />
             </BButton>
         </div>
         <div
@@ -133,6 +145,7 @@ export default {
             isAllSelected: false,
             reviewUpdateDate: undefined,
             reviewId: undefined,
+            searchInput: undefined,
         };
     },
     components: {
@@ -150,10 +163,13 @@ export default {
         this.getReviews();
     },
     methods: {
+        searchReview() {
+            console.log(this.searchInput);
+        },
         async onScroll(e) {
             if (this.isEndOfList) return;
             let { scrollTop, clientHeight, scrollHeight } = e.target;
-            if (scrollTop + clientHeight >= scrollHeight) {
+            if (scrollTop + clientHeight >= scrollHeight && this.processingCount === 0) {
                 await this.getReviews();
             }
         },
@@ -227,6 +243,31 @@ export default {
     > .header-area {
         padding: 10px;
         flex-shrink: 0;
+        display: flex;
+
+        > .header-btn {
+            flex-shrink: 0;
+        }
+
+        > .search-input {
+            flex: 1;
+            background-color: transparent;
+            border-width: 0 0 1px 0;
+            border-style: none none solid none;
+            border-color: transparent transparent white transparent;
+            color: white;
+
+            &:focus {
+                box-shadow: unset;
+            }
+        }
+
+        > .search-btn {
+            flex-shrink: 0;
+            background-color: transparent;
+            color: white;
+            border: none;
+        }
     }
 
     > .review-list-area {
