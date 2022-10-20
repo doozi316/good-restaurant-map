@@ -91,12 +91,13 @@ export default new Vuex.Store({
                 await commit('setReviewsForMap', result.data);
             });
         },
-        async setReviewsByKeySet({ commit }, { that, reviewUpdateDate, reviewId }) {
+        async setReviewsByKeySet({ commit }, { that, reviewUpdateDate, reviewId, searchInput }) {
             await process(that, async () => {
                 const result = await axios.get('/api/review/getReviewsByKeySet', {
                     params: {
                         reviewUpdateDate: reviewUpdateDate,
                         reviewId: reviewId,
+                        searchInput: searchInput,
                     },
                 });
                 if (!reviewUpdateDate && !reviewId) commit('setReviewsByKeySet', result.data);

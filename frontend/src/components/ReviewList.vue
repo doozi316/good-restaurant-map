@@ -50,6 +50,7 @@
             </BButton>
         </div>
         <div
+            ref="scrollArea"
             class="review-list-area"
             @scroll="onScroll"
         >
@@ -164,7 +165,10 @@ export default {
     },
     methods: {
         searchReview() {
-            console.log(this.searchInput);
+            this.$refs.scrollArea.scrollTop = 0;
+            this.reviewUpdateDate = undefined;
+            this.reviewId = undefined;
+            this.getReviews();
         },
         async onScroll(e) {
             if (this.isEndOfList) return;
@@ -178,12 +182,11 @@ export default {
                 that: this,
                 reviewUpdateDate: this.reviewUpdateDate,
                 reviewId: this.reviewId,
+                searchInput: this.searchInput,
             };
             await this.$store.dispatch('setReviewsByKeySet', params);
             if (this.reviews.length > 0) {
-                console.log('# reviews', this.reviews);
                 const lastReview = this.reviews[this.reviews.length - 1];
-                console.log('# lastReview', lastReview);
                 this.reviewUpdateDate = lastReview.reviewUpDateStr;
                 this.reviewId = lastReview.id;
             }

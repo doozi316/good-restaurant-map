@@ -28,8 +28,8 @@ public class ReviewService {
         return reviewDAO.getReview(reviewId);
     }
 
-    public List<ReviewDTO> getReviewsByKeySet(String reviewUpdateDate, String reviewId) {
-        return reviewDAO.getReviewsByKeySet(reviewUpdateDate, reviewId);
+    public List<ReviewDTO> getReviewsByKeySet(String reviewUpdateDate, String reviewId, String searchInput) {
+        return reviewDAO.getReviewsByKeySet(reviewUpdateDate, reviewId, searchInput);
     }
 
     public List<ReviewDTO> getReviewsForMap() {

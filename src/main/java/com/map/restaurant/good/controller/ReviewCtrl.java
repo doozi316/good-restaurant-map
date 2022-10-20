@@ -34,8 +34,10 @@ public class ReviewCtrl {
     @GetMapping("/getReviewsByKeySet")
     public List<ReviewDTO> getReviewsByKeySet(
         @RequestParam(value = "reviewUpdateDate", required = false) String reviewUpdateDate,
-        @RequestParam(value = "reviewId", required = false) String reviewId) {
-        return reviewService.getReviewsByKeySet(reviewUpdateDate, reviewId);
+        @RequestParam(value = "reviewId", required = false) String reviewId,
+        @RequestParam(value = "searchInput", required = false) String searchInput
+    ) {
+        return reviewService.getReviewsByKeySet(reviewUpdateDate, reviewId, searchInput);
     }
 
     @GetMapping("/getReviewsForMap")

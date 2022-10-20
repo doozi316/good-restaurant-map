@@ -67,6 +67,13 @@
                 and
                 r.id <![CDATA[<]]> #{reviewId}
             </if>
+            <if test="searchInput != null and searchInput != ''">
+                and (
+                    r.title like CONCAT('%', #{searchInput}, '%')
+                    or
+                    r.address like CONCAT('%', #{searchInput}, '%')
+                )
+            </if>
         </where>
         order by r.update_date, r.id desc
         limit 10
